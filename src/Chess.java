@@ -49,18 +49,93 @@ public class Chess {
 		// Game loop. Will iterate per turn until game is over
 		while(true) {
 			System.out.println("Team: " + teamSelected +"\nWhat piece would you like to move?");
-			String userInput = myObj.nextLine();
+			String selectedPiece = myObj.nextLine().toUpperCase();
 			
-			Boolean temp = validateMove(userInput);
+			Boolean temp = validateMove(selectedPiece);
 			if (temp == false)
 				break;
 			
+		    potentialMove(selectedPiece);
 			printBoard(teamSelected);
+			
+			// Plays move
+			System.out.println("Team: " + teamSelected +"\nWhere would you like to move your piece too?");
+			String selectedSlot = myObj.nextLine().toUpperCase();
+			
+			temp = validateMove(selectedSlot);
+			if (temp == false)
+				break;
+			
+			playMove(selectedPiece, selectedSlot);
+			printBoard(teamSelected);
+			
 		}
 	}
 	
+	/*
+	 * Will move the piece to a valid position
+	 */
+	public static void playMove(String currentPiece, String possibleDestination) {
+		String emptySlot = "[ ]";
+		String possibleSlot = "[*]";
+		
+		// Coordinates for current selected piece
+		int currentCol = currentPiece.charAt(0) - 65;
+		int currentRow = currentPiece.charAt(1) - 49;
+		
+		// Coordinates for possible move
+		int possibleCol = possibleDestination.charAt(0) - 65;
+		int possibleRow = possibleDestination.charAt(1) - 49;
+		
+		if(chessboard[possibleRow][possibleCol].getPiece().equals(possibleSlot)) {
+			chessboard[possibleRow][possibleCol].setPiece(chessboard[currentRow][currentCol].getPiece());
+			chessboard[possibleRow][possibleCol].setTeam(chessboard[currentRow][currentCol].getTeam());
+			
+			chessboard[currentRow][currentCol].setPiece(emptySlot);
+			chessboard[currentRow][currentCol].setTeam(null);
+		}
+		// Removes the "Potential" moves from the board
+		for(int i = 0; i < chessboard.length; i++) {
+			for(int j = 0; j < chessboard[0].length; j++) {
+				if(chessboard[i][j].getPiece().equals(possibleSlot)){
+					chessboard[i][j].setPiece(emptySlot);
+				}
+			}
+		}
+		
+	}
+	
+	/*
+	 * Shows potential moves for the user selected piece
+	 */
+	public static void potentialMove(String userInput) {
+		String possibleMove = "[*]";
+		String emptySlot = "[ ]";
+		
+		int gameCol = userInput.charAt(0) - 65;
+		int gameRow = userInput.charAt(1) - 49;
+		
+		System.out.println("Game Col: "+gameCol+" Game Row: "+gameRow);
+		// Possible moves for the "Pawn' pieces
+		if (chessboard[gameRow][gameCol].getPiece().equals("[P]")){
+			if (gameRow == 1) {
+				int maxCount = 2;
+				for(int i = 1; i <= maxCount; i++) {
+					if(chessboard[gameRow+ i][gameCol].getPiece().equals(emptySlot))
+						chessboard[gameRow+ i][gameCol].setPiece(possibleMove);
+				}
+			}
+			else {
+				if(chessboard[gameRow+1][gameCol].getPiece().equals(emptySlot)) 
+					chessboard[gameRow+1][gameCol].setPiece(possibleMove);
+			}
+		}	
+	}
+	
+	/*
+	 * Checks to see if the move the user selected is a valid move in the chess board
+	 */
 	public static boolean validateMove(String userInput) {
-		userInput = userInput.toUpperCase();
 		if(userInput.length() != 2) {
 			return false;
 		}
@@ -70,15 +145,6 @@ public class Chess {
 		else if(userInput.charAt(1) < '1' || userInput.charAt(1) > '8' ) {
 			System.out.println("invalid row");
 		}
-		else {
-			int gameCol = userInput.charAt(0) - 65;
-			int gameRow = userInput.charAt(1) - 49;
-			
-			chessboard[gameRow][gameCol].setPiece("[*]");
-			chessboard[gameRow][gameCol].getPiece();
-		}
-		
-		
 		return true;
 	}
 	
