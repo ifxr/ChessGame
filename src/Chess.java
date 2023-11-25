@@ -107,20 +107,24 @@ public class Chess {
 	
 	/*
 	 * Shows potential moves for the user selected piece
+	 * TODO: Uncomment Pawns
 	 */
+	
 	public static void potentialMove(String userInput) {
 		String possibleMove = "[*]";
 		String emptySlot = "[ ]";
+		int maxMovableSlots = 0;
+		int directionAmount = 0;
 		
 		int gameCol = userInput.charAt(0) - 65;
 		int gameRow = userInput.charAt(1) - 49;
 		
 		System.out.println("Game Col: "+gameCol+" Game Row: "+gameRow);
-		// Possible moves for the "Pawn' pieces
+		// "Pawn" piece movement
 		if (chessboard[gameRow][gameCol].getPiece().equals("[P]")){
 			if (gameRow == 1) {
-				int maxCount = 2;
-				for(int i = 1; i <= maxCount; i++) {
+				maxMovableSlots = 2;
+				for(int i = 1; i <= maxMovableSlots; i++) {
 					if(chessboard[gameRow+ i][gameCol].getPiece().equals(emptySlot))
 						chessboard[gameRow+ i][gameCol].setPiece(possibleMove);
 				}
@@ -129,7 +133,49 @@ public class Chess {
 				if(chessboard[gameRow+1][gameCol].getPiece().equals(emptySlot)) 
 					chessboard[gameRow+1][gameCol].setPiece(possibleMove);
 			}
-		}	
+		}
+		// "Rook" piece movement
+		else if(chessboard[gameRow][gameCol].getPiece().equals("[R]")) {
+			maxMovableSlots = 7;
+			directionAmount = 4;
+			for(int i = 0; i < directionAmount; i++) {
+				for(int j = 1; j<= maxMovableSlots; j++) {
+					if(i == 0) {
+						// Validates that the potential slot stays inside of the board
+						if (gameRow + j > chessboard.length -1)
+							break;
+						if(chessboard[gameRow + j][gameCol].getPiece().equals(emptySlot))
+							chessboard[gameRow+ j][gameCol].setPiece(possibleMove);
+						else	break;
+					}
+					else if(i == 1) {
+						// Validates that the potential slot stays inside of the board
+						if (gameRow - j < 0)
+							break;
+						if(chessboard[gameRow - j][gameCol].getPiece().equals(emptySlot))
+							chessboard[gameRow- j][gameCol].setPiece(possibleMove);
+						else	break;
+					}
+					else if(i == 2) {
+						// Validates that the potential slot stays inside of the board
+						if (gameCol  + j > chessboard.length -1)
+							break;
+						if(chessboard[gameRow][gameCol + j].getPiece().equals(emptySlot))
+							chessboard[gameRow][gameCol + j].setPiece(possibleMove);
+						else	break;
+					}
+					else if(i == 3) {
+						// Validates that the potential slot stays inside of the board
+						if (gameCol - j < 0)
+							break;
+						if(chessboard[gameRow][gameCol - j].getPiece().equals(emptySlot))
+							chessboard[gameRow][gameCol - j].setPiece(possibleMove);
+						else	break;
+					}
+					
+				}
+			}
+		}
 	}
 	
 	/*
@@ -173,20 +219,23 @@ public class Chess {
 		}
 		// Populates chess board with all playable pieces
 		else {
-			
 			for(int i = 0; i < chessboard.length; i++) {
 				// Populate king row and assign proper team: "WHITE"
 				chessboard[0][i].setPiece(kingRow[i]);
 				chessboard[0][i].setTeam(teamWhite);
+				
 				// Populate pawn row and assign proper team: "WHITE"
 				chessboard[1][i].setPiece(pawnRow[i]);
 				chessboard[1][i].setTeam(teamWhite);
+				
 				// Populate king row and assign proper team: "BLACK"
 				chessboard[chessboard.length-1][i].setPiece(kingRow[i]);
 				chessboard[chessboard.length-1][i].setTeam(teamBlack);
+				
 				// Populate pawn row and assign proper team: "BLACK"
 				chessboard[chessboard.length-2][i].setPiece(pawnRow[i]);
 				chessboard[chessboard.length-2][i].setTeam(teamBlack);
+				
 			}
 			
 		}
