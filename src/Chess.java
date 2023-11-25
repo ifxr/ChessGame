@@ -166,7 +166,7 @@ public class Chess {
 					}
 					else if(i == 3) {
 						// Validates that the potential slot stays inside of the board
-						if (gameCol - j < 0)
+						if (gameCol - j < 0)	
 							break;
 						if(chessboard[gameRow][gameCol - j].getPiece().equals(emptySlot))
 							chessboard[gameRow][gameCol - j].setPiece(possibleMove);
@@ -176,6 +176,53 @@ public class Chess {
 				}
 			}
 		}
+		// "Bishop" piece movement
+		else if(chessboard[gameRow][gameCol].getPiece().equals("[B]")) {
+			maxMovableSlots = 7;
+			directionAmount = 4;
+			for(int i = 0; i < directionAmount; i++) {
+				for(int j = 1; j<= maxMovableSlots; j++) {
+					if(i == 0) {
+						// Validates that the potential slot stays inside of the board. 
+						if (gameRow + j > chessboard.length -1 || gameCol + j > chessboard.length - 1)
+							break;
+						// Diagonal upper right
+						if(chessboard[gameRow + j][gameCol + j].getPiece().equals(emptySlot))
+							chessboard[gameRow+ j][gameCol + j].setPiece(possibleMove);
+						else	break;
+					}
+					else if(i == 1) {
+						// Validates that the potential slot stays inside of the board. Diagonal upper right
+						if (gameRow - j < 0 || gameCol - j < 0)
+							break;
+						// Diagonal lower left
+						if(chessboard[gameRow - j][gameCol - j].getPiece().equals(emptySlot))
+							chessboard[gameRow- j][gameCol - j].setPiece(possibleMove);
+						else	break;
+					}
+					else if(i == 2) {
+						// Validates that the potential slot stays inside of the board
+						if (gameRow  + j > chessboard.length -1 || gameCol - j < 0)
+							break;
+						// Diagonal upper left
+						if(chessboard[gameRow + j][gameCol - j].getPiece().equals(emptySlot))
+							chessboard[gameRow + j][gameCol - j].setPiece(possibleMove);
+						else	break;
+					}
+					else if(i == 3) {
+						// Validates that the potential slot stays inside of the board
+						if (gameRow - j < 0 || gameCol  + j > chessboard.length -1)	
+							break;
+						// Diagonal lower right
+						if(chessboard[gameRow - j][gameCol + j].getPiece().equals(emptySlot))
+							chessboard[gameRow - j][gameCol + j].setPiece(possibleMove);
+						else	break; 
+					}
+					
+				}
+			}
+		}
+		
 	}
 	
 	/*
