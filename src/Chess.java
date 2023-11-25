@@ -122,109 +122,148 @@ public class Chess {
 		System.out.println("Game Col: "+gameCol+" Game Row: "+gameRow);
 		// "Pawn" piece movement
 		if (chessboard[gameRow][gameCol].getPiece().equals("[P]")){
-			if (gameRow == 1) {
-				maxMovableSlots = 2;
-				for(int i = 1; i <= maxMovableSlots; i++) {
-					if(chessboard[gameRow+ i][gameCol].getPiece().equals(emptySlot))
-						chessboard[gameRow+ i][gameCol].setPiece(possibleMove);
-				}
-			}
-			else {
-				if(chessboard[gameRow+1][gameCol].getPiece().equals(emptySlot)) 
-					chessboard[gameRow+1][gameCol].setPiece(possibleMove);
-			}
+			pawnMovement(gameRow, gameCol);
 		}
 		// "Rook" piece movement
 		else if(chessboard[gameRow][gameCol].getPiece().equals("[R]")) {
-			maxMovableSlots = 7;
-			directionAmount = 4;
-			for(int i = 0; i < directionAmount; i++) {
-				for(int j = 1; j<= maxMovableSlots; j++) {
-					if(i == 0) {
-						// Validates that the potential slot stays inside of the board
-						if (gameRow + j > chessboard.length -1)
-							break;
-						if(chessboard[gameRow + j][gameCol].getPiece().equals(emptySlot))
-							chessboard[gameRow+ j][gameCol].setPiece(possibleMove);
-						else	break;
-					}
-					else if(i == 1) {
-						// Validates that the potential slot stays inside of the board
-						if (gameRow - j < 0)
-							break;
-						if(chessboard[gameRow - j][gameCol].getPiece().equals(emptySlot))
-							chessboard[gameRow- j][gameCol].setPiece(possibleMove);
-						else	break;
-					}
-					else if(i == 2) {
-						// Validates that the potential slot stays inside of the board
-						if (gameCol  + j > chessboard.length -1)
-							break;
-						if(chessboard[gameRow][gameCol + j].getPiece().equals(emptySlot))
-							chessboard[gameRow][gameCol + j].setPiece(possibleMove);
-						else	break;
-					}
-					else if(i == 3) {
-						// Validates that the potential slot stays inside of the board
-						if (gameCol - j < 0)	
-							break;
-						if(chessboard[gameRow][gameCol - j].getPiece().equals(emptySlot))
-							chessboard[gameRow][gameCol - j].setPiece(possibleMove);
-						else	break;
-					}
-					
-				}
-			}
+			rookMovement(gameRow, gameCol);
+			
 		}
 		// "Bishop" piece movement
 		else if(chessboard[gameRow][gameCol].getPiece().equals("[B]")) {
-			maxMovableSlots = 7;
-			directionAmount = 4;
-			for(int i = 0; i < directionAmount; i++) {
-				for(int j = 1; j<= maxMovableSlots; j++) {
-					if(i == 0) {
-						// Validates that the potential slot stays inside of the board. 
-						if (gameRow + j > chessboard.length -1 || gameCol + j > chessboard.length - 1)
-							break;
-						// Diagonal upper right
-						if(chessboard[gameRow + j][gameCol + j].getPiece().equals(emptySlot))
-							chessboard[gameRow+ j][gameCol + j].setPiece(possibleMove);
-						else	break;
-					}
-					else if(i == 1) {
-						// Validates that the potential slot stays inside of the board. Diagonal upper right
-						if (gameRow - j < 0 || gameCol - j < 0)
-							break;
-						// Diagonal lower left
-						if(chessboard[gameRow - j][gameCol - j].getPiece().equals(emptySlot))
-							chessboard[gameRow- j][gameCol - j].setPiece(possibleMove);
-						else	break;
-					}
-					else if(i == 2) {
-						// Validates that the potential slot stays inside of the board
-						if (gameRow  + j > chessboard.length -1 || gameCol - j < 0)
-							break;
-						// Diagonal upper left
-						if(chessboard[gameRow + j][gameCol - j].getPiece().equals(emptySlot))
-							chessboard[gameRow + j][gameCol - j].setPiece(possibleMove);
-						else	break;
-					}
-					else if(i == 3) {
-						// Validates that the potential slot stays inside of the board
-						if (gameRow - j < 0 || gameCol  + j > chessboard.length -1)	
-							break;
-						// Diagonal lower right
-						if(chessboard[gameRow - j][gameCol + j].getPiece().equals(emptySlot))
-							chessboard[gameRow - j][gameCol + j].setPiece(possibleMove);
-						else	break; 
-					}
-					
-				}
-			}
+			bishopMovement(gameRow, gameCol);
 		}
 		
 	}
 	
+	/*
+	 * Logic for Pawn movement
+	 * Pawn movement allows it to move in 1 directions:
+	 * It has the option to move 2 square the first move but after that it is 1 square per turn
+	 */
+	public static void pawnMovement(int gameRow, int gameCol) {
+		String possibleMove = "[*]";
+		String emptySlot = "[ ]";
+		int maxMovableSlots = 2;
+		
+		if (gameRow == 1) {
+			for(int i = 1; i <= maxMovableSlots; i++) {
+				if(chessboard[gameRow+ i][gameCol].getPiece().equals(emptySlot))
+					chessboard[gameRow+ i][gameCol].setPiece(possibleMove);
+			}
+		}
+		else {
+			if(chessboard[gameRow+1][gameCol].getPiece().equals(emptySlot)) 
+				chessboard[gameRow+1][gameCol].setPiece(possibleMove);
+		}
+	}
+	
+	/*
+	 * Logic for rook movement
+	 * Rook movement allows it to move in 4 directions:
+	 * Up, Down, Left, Right
+	 */
+	public static void rookMovement(int gameRow, int gameCol) {
+		String possibleMove = "[*]";
+		String emptySlot = "[ ]";
+		int maxMovableSlots = 7;
+		int directionAmount = 4;
+		for(int i = 0; i < directionAmount; i++) {
+			for(int j = 1; j<= maxMovableSlots; j++) {
+				if(i == 0) {
+					// Validates that the potential slot stays inside of the board
+					if (gameRow + j > chessboard.length -1)
+						break;
+					// Up
+					if(chessboard[gameRow + j][gameCol].getPiece().equals(emptySlot))
+						chessboard[gameRow+ j][gameCol].setPiece(possibleMove);
+					else	break;
+				}
+				else if(i == 1) {
+					// Validates that the potential slot stays inside of the board
+					if (gameRow - j < 0)
+						break;
+					// Down
+					if(chessboard[gameRow - j][gameCol].getPiece().equals(emptySlot))
+						chessboard[gameRow- j][gameCol].setPiece(possibleMove);
+					else	break;
+				}
+				else if(i == 2) {
+					// Validates that the potential slot stays inside of the board
+					if (gameCol  + j > chessboard.length -1)
+						break;
+					// Right
+					if(chessboard[gameRow][gameCol + j].getPiece().equals(emptySlot))
+						chessboard[gameRow][gameCol + j].setPiece(possibleMove);
+					else	break;
+				}
+				else if(i == 3) {
+					// Validates that the potential slot stays inside of the board
+					if (gameCol - j < 0)	
+						break;
+					// Left
+					if(chessboard[gameRow][gameCol - j].getPiece().equals(emptySlot))
+						chessboard[gameRow][gameCol - j].setPiece(possibleMove);
+					else	break;
+				}
+				
+			}
+		}
+	}
+	
+	/*
+	 * Logic for bishop movement
+	 * Bishop movement allows it to move in 4 diagonal directions:
+	 * Upper Left, Upper Right, Lower Left, Lower Right
+	 */
+	public static void bishopMovement(int gameRow, int gameCol) {
+		String possibleMove = "[*]";
+		String emptySlot = "[ ]";
+		int maxMovableSlots = 7;
+		int directionAmount = 4;
+		
+		for(int i = 0; i < directionAmount; i++) {
+			for(int j = 1; j<= maxMovableSlots; j++) {
+				if(i == 0) {
+					// Validates that the potential slot stays inside of the board. 
+					if (gameRow + j > chessboard.length -1 || gameCol + j > chessboard.length - 1)
+						break;
+					// Diagonal upper right
+					if(chessboard[gameRow + j][gameCol + j].getPiece().equals(emptySlot))
+						chessboard[gameRow+ j][gameCol + j].setPiece(possibleMove);
+					else	break;
+				}
+				else if(i == 1) {
+					// Validates that the potential slot stays inside of the board. Diagonal upper right
+					if (gameRow - j < 0 || gameCol - j < 0)
+						break;
+					// Diagonal lower left
+					if(chessboard[gameRow - j][gameCol - j].getPiece().equals(emptySlot))
+						chessboard[gameRow- j][gameCol - j].setPiece(possibleMove);
+					else	break;
+				}
+				else if(i == 2) {
+					// Validates that the potential slot stays inside of the board
+					if (gameRow  + j > chessboard.length -1 || gameCol - j < 0)
+						break;
+					// Diagonal upper left
+					if(chessboard[gameRow + j][gameCol - j].getPiece().equals(emptySlot))
+						chessboard[gameRow + j][gameCol - j].setPiece(possibleMove);
+					else	break;
+				}
+				else if(i == 3) {
+					// Validates that the potential slot stays inside of the board
+					if (gameRow - j < 0 || gameCol  + j > chessboard.length -1)	
+						break;
+					// Diagonal lower right
+					if(chessboard[gameRow - j][gameCol + j].getPiece().equals(emptySlot))
+						chessboard[gameRow - j][gameCol + j].setPiece(possibleMove);
+					else	break; 
+				}
+				
+			}
+		}
+	}
 	/*
 	 * Checks to see if the move the user selected is a valid move in the chess board
 	 */
