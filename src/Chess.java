@@ -107,13 +107,12 @@ public class Chess {
 	
 	/*
 	 * Shows potential moves for the user selected piece
-	 * TODO: Uncomment Pawns
 	 */
 	
 	public static void potentialMove(String userInput) {
 		String possibleMove = "[*]";
 		String emptySlot = "[ ]";
-		int maxMovableSlots = chessboard.length - 1;
+		int maxMovableSlots = chessboard.length;
 		int minMovableSlots = 1;
 		int pawnMovableSlots = 2;
 		
@@ -135,12 +134,16 @@ public class Chess {
 		else if(chessboard[gameRow][gameCol].getPiece().equals("[B]")) {
 			bishopMovement(gameRow, gameCol, maxMovableSlots);
 		}
+		// 'Knight' Movement
+		else if(chessboard[gameRow][gameCol].getPiece().equals("[k]")) {
+			knightMovement(gameRow, gameCol, maxMovableSlots);
+		}
 		// "Queen" piece movement
 		else if(chessboard[gameRow][gameCol].getPiece().equals("[Q]")) {
 			rookMovement(gameRow, gameCol, maxMovableSlots);
 			bishopMovement(gameRow, gameCol, maxMovableSlots);
 		}
-		// "Queen" piece movement
+		// "King" piece movement
 		else if(chessboard[gameRow][gameCol].getPiece().equals("[K]")) {
 			rookMovement(gameRow, gameCol, minMovableSlots);
 			bishopMovement(gameRow, gameCol, minMovableSlots);
@@ -168,10 +171,11 @@ public class Chess {
 		}
 	}
 	
+	
 	/*
-	 * Logic for rook movement
-	 * Rook movement allows it to move in 4 directions:
-	 * Up, Down, Left, Right
+	 * Main logic for 'Rook' movement and partial logic for the 'Queen' and 'King'
+	 * This method allows selected piece to move in 4 directions:
+	 * Upper Left, Upper Right, Lower Left, Lower Right
 	 */
 	public static void rookMovement(int gameRow, int gameCol, int maxMovableSlots) {
 		String possibleMove = "[*]";
@@ -221,8 +225,8 @@ public class Chess {
 	}
 	
 	/*
-	 * Logic for bishop movement
-	 * Bishop movement allows it to move in 4 diagonal directions:
+	 * Main logic for 'Bishop' and partial logic for the 'Queen' and 'King'
+	 * This method allows selected piece to move in 4 diagonal directions:
 	 * Upper Left, Upper Right, Lower Left, Lower Right
 	 */
 	public static void bishopMovement(int gameRow, int gameCol, int maxMovableSlots) {
@@ -272,6 +276,94 @@ public class Chess {
 			}
 		}
 	}
+
+	/*
+	 * Main logic for 'Knight'
+	 * This method allows selected piece to move to 8 different slots:
+	 * 2Ux1L, 2Ux1R, 2Dx1L, 2Dx1R, 2Lx1U, 2Lx1D, 2Rx1U, 2Rx1D 
+	 */
+	public static void knightMovement(int gameRow, int gameCol, int maxMovableSlots) {
+		String possibleMove = "[*]";
+		String emptySlot = "[ ]";
+		int directionOne = 1;
+		int directionTwo = 2;
+		
+		for (int i = 0; i < maxMovableSlots; i++) {
+			if(i == 0) {
+				// Validates that the potential slot stays inside of the board
+				if (gameRow + directionTwo > chessboard.length -1 || gameCol  - directionOne < 0)	
+					continue;
+				// 2Ux1L
+				if(chessboard[gameRow + directionTwo][gameCol - directionOne].getPiece().equals(emptySlot))
+					chessboard[gameRow +directionTwo][gameCol - directionOne].setPiece(possibleMove);
+				else	break; 
+			}
+			else if(i == 1) {
+				// Validates that the potential slot stays inside of the board
+				if (gameRow + directionTwo > chessboard.length -1 || gameCol  + directionOne > chessboard.length -1)	
+					continue;
+				// 2Ux1R
+				if(chessboard[gameRow + directionTwo][gameCol + directionOne].getPiece().equals(emptySlot))
+					chessboard[gameRow + directionTwo][gameCol + directionOne].setPiece(possibleMove);
+				else	break; 
+			}
+			else if(i == 2) {
+				// Validates that the potential slot stays inside of the board
+				if (gameRow - directionTwo < 0 || gameCol  - directionOne < 0)	
+					continue;
+				// 2Dx1L
+				if(chessboard[gameRow - directionTwo][gameCol - directionOne].getPiece().equals(emptySlot))
+					chessboard[gameRow - directionTwo][gameCol - directionOne].setPiece(possibleMove);
+				else	break; 
+			}
+			else if(i == 3) {
+				// Validates that the potential slot stays inside of the board
+				if (gameRow - directionTwo < 0 || gameCol  + directionOne > chessboard.length - 1)	
+					continue;
+				// 2Dx1R
+				if(chessboard[gameRow - directionTwo][gameCol + directionOne].getPiece().equals(emptySlot))
+					chessboard[gameRow - directionTwo][gameCol + directionOne].setPiece(possibleMove);
+				else	break; 
+			}
+			else if(i == 4) {
+				// Validates that the potential slot stays inside of the board
+				if (gameRow + directionOne > chessboard.length - 1 || gameCol - directionTwo < 0)	
+					continue;
+				// 1Ux2L
+				if(chessboard[gameRow + directionOne][gameCol - directionTwo].getPiece().equals(emptySlot))
+					chessboard[gameRow + directionOne][gameCol - directionTwo].setPiece(possibleMove);
+				else	break; 
+			}
+			else if(i == 5) {
+				// Validates that the potential slot stays inside of the board
+				if (gameRow + directionOne > chessboard.length - 1 || gameCol + directionTwo > chessboard.length - 1)	
+					continue;
+				// 1Ux2R
+				if(chessboard[gameRow + directionOne][gameCol + directionTwo].getPiece().equals(emptySlot))
+					chessboard[gameRow + directionOne][gameCol + directionTwo].setPiece(possibleMove);
+				else	break; 
+			}
+			else if(i == 6) {
+				// Validates that the potential slot stays inside of the board
+				if (gameRow - directionOne < 0 || gameCol - directionTwo < 0)	
+					continue;
+				// 1Dx2L
+				if(chessboard[gameRow - directionOne][gameCol - directionTwo].getPiece().equals(emptySlot))
+					chessboard[gameRow - directionOne][gameCol - directionTwo].setPiece(possibleMove);
+				else	break; 
+			}
+			else if(i == 7) {
+				// Validates that the potential slot stays inside of the board
+				if (gameRow - directionOne < 0 || gameCol + directionTwo > chessboard.length - 1)	
+					continue;
+				// 1Dx2R
+				if(chessboard[gameRow - directionOne][gameCol + directionTwo].getPiece().equals(emptySlot))
+					chessboard[gameRow - directionOne][gameCol + directionTwo].setPiece(possibleMove);
+				else	break; 
+			}
+		}
+	}
+	
 	/*
 	 * Checks to see if the move the user selected is a valid move in the chess board
 	 */
@@ -315,7 +407,8 @@ public class Chess {
 		else {
 			for(int i = 0; i < chessboard.length; i++) {
 				// Populate king row and assign proper team: "WHITE"
-				chessboard[0][i].setPiece(kingRow[i]);
+				
+				chessboard[5][i].setPiece(kingRow[i]);
 				chessboard[0][i].setTeam(teamWhite);
 				/*
 				// Populate pawn row and assign proper team: "WHITE"
