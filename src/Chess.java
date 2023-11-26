@@ -140,7 +140,11 @@ public class Chess {
 			rookMovement(gameRow, gameCol, maxMovableSlots);
 			bishopMovement(gameRow, gameCol, maxMovableSlots);
 		}
-		
+		// "Queen" piece movement
+		else if(chessboard[gameRow][gameCol].getPiece().equals("[K]")) {
+			rookMovement(gameRow, gameCol, minMovableSlots);
+			bishopMovement(gameRow, gameCol, minMovableSlots);
+		}
 	}
 	
 	/*
@@ -313,7 +317,7 @@ public class Chess {
 				// Populate king row and assign proper team: "WHITE"
 				chessboard[0][i].setPiece(kingRow[i]);
 				chessboard[0][i].setTeam(teamWhite);
-				
+				/*
 				// Populate pawn row and assign proper team: "WHITE"
 				chessboard[1][i].setPiece(pawnRow[i]);
 				chessboard[1][i].setTeam(teamWhite);
@@ -325,7 +329,7 @@ public class Chess {
 				// Populate pawn row and assign proper team: "BLACK"
 				chessboard[chessboard.length-2][i].setPiece(pawnRow[i]);
 				chessboard[chessboard.length-2][i].setTeam(teamBlack);
-				
+				*/
 			}
 			
 		}
