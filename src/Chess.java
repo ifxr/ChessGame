@@ -32,22 +32,17 @@ public class Chess {
 	public static void main(String[] args) {
 		Scanner myObj = new Scanner(System.in);
 		String teamSelected;
+		String[] team = {"WHITE", "BLACK"};
+		int teamCounter = 0;
 		
-		// Asks the user to select a valid team
-		while(true) {
-			System.out.println("Would you like to be White or Black?");
-			teamSelected = myObj.nextLine();
-			teamSelected = teamSelected.toUpperCase();
-			int temp = generateBoard(teamSelected);
-			
-			if (temp == 0)
-				break;
-		}
-		
-		printBoard(teamSelected);
+		teamSelected = team[teamCounter];
+		generateBoard(teamSelected);		//Generates Board
 		
 		// Game loop. Will iterate per turn until game is over
 		while(true) {
+			
+			teamSelected = team[teamCounter%2];
+			printBoard(teamSelected);
 			System.out.println("Team: " + teamSelected +"\nWhat piece would you like to move?");
 			String selectedPiece = myObj.nextLine().toUpperCase();
 			
@@ -67,7 +62,8 @@ public class Chess {
 				break;
 			
 			playMove(selectedPiece, selectedSlot);
-			printBoard(teamSelected);
+			
+			teamCounter++;
 			
 		}
 	}
@@ -181,16 +177,19 @@ public class Chess {
 		String possibleMove = "[*]";
 		String emptySlot = "[ ]";
 		int directionAmount = 4;
+		String currentTeam = chessboard[gameRow][gameCol].getTeam();
+		
 		for(int i = 0; i < directionAmount; i++) {
 			for(int j = 1; j<= maxMovableSlots; j++) {
 				if(i == 0) {
 					// Validates that the potential slot stays inside of the board
-					if (gameRow + j > chessboard.length -1)
+					if (gameRow + j > chessboard.length - 1)
 						break;
 					// Up
 					if(chessboard[gameRow + j][gameCol].getPiece().equals(emptySlot))
 						chessboard[gameRow+ j][gameCol].setPiece(possibleMove);
-					else	break;
+					else
+						break;
 				}
 				else if(i == 1) {
 					// Validates that the potential slot stays inside of the board
@@ -408,17 +407,17 @@ public class Chess {
 			for(int i = 0; i < chessboard.length; i++) {
 				// Populate king row and assign proper team: "WHITE"
 				
-				chessboard[5][i].setPiece(kingRow[i]);
+				chessboard[0][i].setPiece(kingRow[i]);
 				chessboard[0][i].setTeam(teamWhite);
 				/*
 				// Populate pawn row and assign proper team: "WHITE"
 				chessboard[1][i].setPiece(pawnRow[i]);
 				chessboard[1][i].setTeam(teamWhite);
-				
+				*/
 				// Populate king row and assign proper team: "BLACK"
 				chessboard[chessboard.length-1][i].setPiece(kingRow[i]);
 				chessboard[chessboard.length-1][i].setTeam(teamBlack);
-				
+				/*
 				// Populate pawn row and assign proper team: "BLACK"
 				chessboard[chessboard.length-2][i].setPiece(pawnRow[i]);
 				chessboard[chessboard.length-2][i].setTeam(teamBlack);
