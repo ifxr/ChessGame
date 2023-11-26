@@ -113,8 +113,10 @@ public class Chess {
 	public static void potentialMove(String userInput) {
 		String possibleMove = "[*]";
 		String emptySlot = "[ ]";
-		int maxMovableSlots = 0;
-		int directionAmount = 0;
+		int maxMovableSlots = chessboard.length - 1;
+		int minMovableSlots = 1;
+		int pawnMovableSlots = 2;
+		
 		
 		int gameCol = userInput.charAt(0) - 65;
 		int gameRow = userInput.charAt(1) - 49;
@@ -122,16 +124,21 @@ public class Chess {
 		System.out.println("Game Col: "+gameCol+" Game Row: "+gameRow);
 		// "Pawn" piece movement
 		if (chessboard[gameRow][gameCol].getPiece().equals("[P]")){
-			pawnMovement(gameRow, gameCol);
+			pawnMovement(gameRow, gameCol, pawnMovableSlots);
 		}
 		// "Rook" piece movement
 		else if(chessboard[gameRow][gameCol].getPiece().equals("[R]")) {
-			rookMovement(gameRow, gameCol);
+			rookMovement(gameRow, gameCol, maxMovableSlots);
 			
 		}
 		// "Bishop" piece movement
 		else if(chessboard[gameRow][gameCol].getPiece().equals("[B]")) {
-			bishopMovement(gameRow, gameCol);
+			bishopMovement(gameRow, gameCol, maxMovableSlots);
+		}
+		// "Queen" piece movement
+		else if(chessboard[gameRow][gameCol].getPiece().equals("[Q]")) {
+			rookMovement(gameRow, gameCol, maxMovableSlots);
+			bishopMovement(gameRow, gameCol, maxMovableSlots);
 		}
 		
 	}
@@ -141,10 +148,9 @@ public class Chess {
 	 * Pawn movement allows it to move in 1 directions:
 	 * It has the option to move 2 square the first move but after that it is 1 square per turn
 	 */
-	public static void pawnMovement(int gameRow, int gameCol) {
+	public static void pawnMovement(int gameRow, int gameCol, int maxMovableSlots) {
 		String possibleMove = "[*]";
 		String emptySlot = "[ ]";
-		int maxMovableSlots = 2;
 		
 		if (gameRow == 1) {
 			for(int i = 1; i <= maxMovableSlots; i++) {
@@ -163,10 +169,9 @@ public class Chess {
 	 * Rook movement allows it to move in 4 directions:
 	 * Up, Down, Left, Right
 	 */
-	public static void rookMovement(int gameRow, int gameCol) {
+	public static void rookMovement(int gameRow, int gameCol, int maxMovableSlots) {
 		String possibleMove = "[*]";
 		String emptySlot = "[ ]";
-		int maxMovableSlots = 7;
 		int directionAmount = 4;
 		for(int i = 0; i < directionAmount; i++) {
 			for(int j = 1; j<= maxMovableSlots; j++) {
@@ -216,10 +221,9 @@ public class Chess {
 	 * Bishop movement allows it to move in 4 diagonal directions:
 	 * Upper Left, Upper Right, Lower Left, Lower Right
 	 */
-	public static void bishopMovement(int gameRow, int gameCol) {
+	public static void bishopMovement(int gameRow, int gameCol, int maxMovableSlots) {
 		String possibleMove = "[*]";
 		String emptySlot = "[ ]";
-		int maxMovableSlots = 7;
 		int directionAmount = 4;
 		
 		for(int i = 0; i < directionAmount; i++) {
