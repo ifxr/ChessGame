@@ -62,17 +62,19 @@ public class Chess {
 			if (temp == false)
 				break;
 			
-			playMove(selectedPiece, selectedSlot);
+			int winner = playMove(selectedPiece, selectedSlot);
+			if (winner == 1)
+				break;
 			
-			teamCounter++;
-			
+			teamCounter++;	
 		}
+		System.out.println(teamSelected+" Wins!!!");
 	}
 	
 	/*
 	 * Will move the piece to a valid position
 	 */
-	public static void playMove(String currentPiece, String possibleDestination) {
+	public static int playMove(String currentPiece, String possibleDestination) {
 		String emptySlot = "[ ]";
 		String possibleSlot = "[*]";
 		
@@ -91,14 +93,29 @@ public class Chess {
 			chessboard[currentRow][currentCol].setPiece(emptySlot);
 			chessboard[currentRow][currentCol].setTeam(null);
 		}
+		else if(chessboard[possibleRow][possibleCol].getPiece().contains("{")) {
+			// If 'King' gets eaten, game ends
+			if(chessboard[possibleRow][possibleCol].getPiece().contains("K"))
+				return 1;
+			
+			chessboard[possibleRow][possibleCol].setPiece(chessboard[currentRow][currentCol].getPiece());
+			chessboard[possibleRow][possibleCol].setTeam(chessboard[currentRow][currentCol].getTeam());
+			
+			chessboard[currentRow][currentCol].setPiece(emptySlot);
+			chessboard[currentRow][currentCol].setTeam(null);
+		}
 		// Removes the "Potential" moves from the board
 		for(int i = 0; i < chessboard.length; i++) {
 			for(int j = 0; j < chessboard[0].length; j++) {
-				if(chessboard[i][j].getPiece().equals(possibleSlot)){
+				if(chessboard[i][j].getPiece().equals(possibleSlot))
 					chessboard[i][j].setPiece(emptySlot);
-				}
+				
+				if (chessboard[i][j].getPiece().contains("{")) 
+					chessboard[i][j].setPiece(chessboard[i][j].getPiece().replace('{', '[').replace('}', ']'));
 			}
 		}
+		
+		return 0;
 		
 	}
 	
@@ -117,7 +134,6 @@ public class Chess {
 		int gameCol = userInput.charAt(0) - 65;
 		int gameRow = userInput.charAt(1) - 49;
 		
-		System.out.println("Game Col: "+gameCol+" Game Row: "+gameRow);
 		// "Pawn" piece movement
 		if (chessboard[gameRow][gameCol].getPiece().equals("[P]")){
 			pawnMovement(gameRow, gameCol, pawnMovableSlots);
