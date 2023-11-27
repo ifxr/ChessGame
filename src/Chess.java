@@ -126,6 +126,7 @@ public class Chess {
 	
 	/*
 	 * Shows potential moves for the user selected piece
+	 * A 'return 1' means that the user selected an invalid piece
 	 */
 	
 	public static int potentialMove(String userInput, String currentTeam) {
@@ -136,9 +137,11 @@ public class Chess {
 		int gameCol = userInput.charAt(0) - 65;
 		int gameRow = userInput.charAt(1) - 49;
 		
+		// Checks to see if selected piece is an empty slot. If so, it returns for 
 		if (chessboard[gameRow][gameCol].getTeam() == null)
 			return 1;
 		
+		// Checks to see that the correct team selects their pieces rather than opponents piece
 		if (!chessboard[gameRow][gameCol].getTeam().equals(currentTeam)) 
 			return 1;
 		
@@ -182,33 +185,53 @@ public class Chess {
 		String emptySlot = "[ ]";
 		String teamWhite = "WHITE";
 		String currentTeam = chessboard[gameRow][gameCol].getTeam();
+		int tempPosition = 0;
 		
 		if (currentTeam.equals(teamWhite)) { 
 			if(gameRow == 1){
 				for(int i = 1; i <= maxMovableSlots; i++) {
-					if(chessboard[gameRow+ i][gameCol].getPiece().equals(emptySlot)) {
+					if(chessboard[gameRow+ i][gameCol].getPiece().equals(emptySlot)) 
 						chessboard[gameRow+ i][gameCol].setPiece(possibleMove);
-					}
 				}
 			}
 			else {
 				if(chessboard[gameRow+1][gameCol].getPiece().equals(emptySlot)) 
 					chessboard[gameRow+1][gameCol].setPiece(possibleMove);
 			}
+			// Checks right Diagonal
+			if (gameRow + 1 > chessboard.length - 1 || gameCol + 1 > chessboard.length -1)
+				return;
+			else 
+				markTarget(gameRow+1, gameCol+1, currentTeam);
+			// Checks left Diagonal
+			if (gameRow + 1 > chessboard.length - 1 || gameCol - 1 <0)
+				return;
+			else
+				markTarget(gameRow+ 1, gameCol-1, currentTeam);
 			
 		}
 		else {
 			if(gameRow == 6){
 				for(int i = 1; i <= maxMovableSlots; i++) {
-					if(chessboard[gameRow- i][gameCol].getPiece().equals(emptySlot)) {
+					if(chessboard[gameRow- i][gameCol].getPiece().equals(emptySlot)) 
 						chessboard[gameRow- i][gameCol].setPiece(possibleMove);
-					}
 				}
 			}
 			else {
 				if(chessboard[gameRow-1][gameCol].getPiece().equals(emptySlot)) 
 					chessboard[gameRow-1][gameCol].setPiece(possibleMove);
+				
 			}
+			// Checks right Diagonal
+			if (gameRow - 1 < 0 || gameCol + 1 > chessboard.length -1)
+				return;
+			else
+				markTarget(gameRow-1, gameCol+1, currentTeam);
+			// Checks left Diagonal
+			if (gameRow - 1 < 0 || gameCol - 1 <0)
+				return;
+			else
+				markTarget(gameRow- 1, gameCol-1, currentTeam);
 		}
 	}
 	
@@ -285,10 +308,9 @@ public class Chess {
 	public static void markTarget(int gameRow, int gameCol, String playerTeam) {
 		String targetTeam = chessboard[gameRow][gameCol].getTeam();
 		
-		if (targetTeam.equals(null) || targetTeam.equals(playerTeam))
+		if (targetTeam == null || targetTeam.equals(playerTeam))
 			return;
-		System.out.println("Players team: "+ playerTeam);
-		System.out.println("Target team: "+ targetTeam);
+		
 		chessboard[gameRow][gameCol].setPiece(chessboard[gameRow][gameCol].getPiece().replace('[', '{').replace(']','}'));
 		
 	}
