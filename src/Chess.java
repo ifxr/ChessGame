@@ -51,8 +51,13 @@ public class Chess {
 			if (temp == false)
 				break;
 			
-		    potentialMove(selectedPiece);
-			printBoard(teamSelected);
+		    int potTemp = potentialMove(selectedPiece, teamSelected);
+		    
+		    if (potTemp == 1) 
+				continue;
+		    
+		    printBoard(teamSelected);
+			
 			
 			// Plays move
 			System.out.println("Team: " + teamSelected +"\nWhere would you like to move your piece too?");
@@ -123,16 +128,19 @@ public class Chess {
 	 * Shows potential moves for the user selected piece
 	 */
 	
-	public static void potentialMove(String userInput) {
-		String possibleMove = "[*]";
-		String emptySlot = "[ ]";
+	public static int potentialMove(String userInput, String currentTeam) {
 		int maxMovableSlots = chessboard.length;
 		int minMovableSlots = 1;
 		int pawnMovableSlots = 2;
 		
-		
 		int gameCol = userInput.charAt(0) - 65;
 		int gameRow = userInput.charAt(1) - 49;
+		
+		if (chessboard[gameRow][gameCol].getTeam() == null)
+			return 1;
+		
+		if (!chessboard[gameRow][gameCol].getTeam().equals(currentTeam)) 
+			return 1;
 		
 		// "Pawn" piece movement
 		if (chessboard[gameRow][gameCol].getPiece().equals("[P]")){
@@ -161,6 +169,7 @@ public class Chess {
 			rookMovement(gameRow, gameCol, minMovableSlots);
 			bishopMovement(gameRow, gameCol, minMovableSlots);
 		}
+		return 0;
 	}
 	
 	/*
@@ -171,16 +180,35 @@ public class Chess {
 	public static void pawnMovement(int gameRow, int gameCol, int maxMovableSlots) {
 		String possibleMove = "[*]";
 		String emptySlot = "[ ]";
+		String teamWhite = "WHITE";
+		String currentTeam = chessboard[gameRow][gameCol].getTeam();
 		
-		if (gameRow == 1) {
-			for(int i = 1; i <= maxMovableSlots; i++) {
-				if(chessboard[gameRow+ i][gameCol].getPiece().equals(emptySlot))
-					chessboard[gameRow+ i][gameCol].setPiece(possibleMove);
+		if (currentTeam.equals(teamWhite)) { 
+			if(gameRow == 1){
+				for(int i = 1; i <= maxMovableSlots; i++) {
+					if(chessboard[gameRow+ i][gameCol].getPiece().equals(emptySlot)) {
+						chessboard[gameRow+ i][gameCol].setPiece(possibleMove);
+					}
+				}
 			}
+			else {
+				if(chessboard[gameRow+1][gameCol].getPiece().equals(emptySlot)) 
+					chessboard[gameRow+1][gameCol].setPiece(possibleMove);
+			}
+			
 		}
 		else {
-			if(chessboard[gameRow+1][gameCol].getPiece().equals(emptySlot)) 
-				chessboard[gameRow+1][gameCol].setPiece(possibleMove);
+			if(gameRow == 6){
+				for(int i = 1; i <= maxMovableSlots; i++) {
+					if(chessboard[gameRow- i][gameCol].getPiece().equals(emptySlot)) {
+						chessboard[gameRow- i][gameCol].setPiece(possibleMove);
+					}
+				}
+			}
+			else {
+				if(chessboard[gameRow-1][gameCol].getPiece().equals(emptySlot)) 
+					chessboard[gameRow-1][gameCol].setPiece(possibleMove);
+			}
 		}
 	}
 	
@@ -251,6 +279,9 @@ public class Chess {
 		}
 	}
 	
+	/*
+	 * Marks the piece that will get eaten by substituting the '[ ]' with '{ }'
+	 */
 	public static void markTarget(int gameRow, int gameCol, String playerTeam) {
 		String targetTeam = chessboard[gameRow][gameCol].getTeam();
 		
