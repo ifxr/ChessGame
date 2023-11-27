@@ -565,23 +565,37 @@ public class Chess {
 	 */
 	public static void printBoard(String teamSelected) {
 		String teamWhite = "WHITE";
+		String teamBlack = "BLACK";
+		String YELLOW = "\u001B[33m";
+		String GREEN = "\u001B[32m";
+		String RESET = "\u001B[0m";
 		
 		// Prints from "WHITE" POV
 		if (teamSelected.equals(teamWhite)) {
 			for(int i = chessboard.length -1; i >= 0; i--) {
 				for (int j = 0; j < chessboard[0].length; j++) {
-					System.out.print(chessboard[i][j].getPiece());
+					if (chessboard[i][j].getTeam() == null)
+						System.out.print(RESET+ chessboard[i][j].getPiece());
+					else if(chessboard[i][j].getTeam().equals(teamWhite))
+						System.out.print(GREEN+ chessboard[i][j].getPiece());
+					else if(chessboard[i][j].getTeam().equals(teamBlack))
+						System.out.print(YELLOW+ chessboard[i][j].getPiece());
 				}
-				System.out.println();
+				System.out.println(RESET);
 			}	
 		}
 		// Prints from "BLACK" POV
 		else {
 			for(int i = 0; i < chessboard.length; i++) {
 				for (int j = chessboard[0].length -1; j >=0; j--) {
-					System.out.print(chessboard[i][j].getPiece());
+					if (chessboard[i][j].getTeam() == null)
+						System.out.print(RESET+ chessboard[i][j].getPiece());
+					else if(chessboard[i][j].getTeam().equals(teamWhite))
+						System.out.print(GREEN+ chessboard[i][j].getPiece());
+					else if(chessboard[i][j].getTeam().equals(teamBlack))
+						System.out.print(YELLOW+ chessboard[i][j].getPiece());
 				}
-				System.out.println();
+				System.out.println(RESET);
 			}
 		}
 	}
