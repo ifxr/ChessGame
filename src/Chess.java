@@ -1,4 +1,9 @@
-import java.util.Scanner;
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.awt.event.*;
+import java.util.*;
+
+import javax.swing.*;
 
 class ChessInfo{	
 	String team;				// Represents what team the player will be in
@@ -28,75 +33,110 @@ class ChessInfo{
 
 public class Chess {
 	static ChessInfo[][] chessboard = new ChessInfo[8][8];
+	static JButton[][] buttons;
+	static JFrame frame;
+	static JLabel output = new JLabel("Click a button");
+	static int count = 0;
+	static int[] pieceCoords = {-1,-1};
+	static int[] nextMove = {-1, -1};
 	
 	public static void main(String[] args) {
-		Scanner myObj = new Scanner(System.in);
-		String teamSelected;
 		String[] team = {"WHITE", "BLACK"};
-		int teamCounter = 0;
 		
-		teamSelected = team[teamCounter];
-		generateBoard(teamSelected);		//Generates Board
+		// an array of JButtons
+		frame =new JFrame("Button Example"); 
+		buttons = new JButton[8][8];
 		
-		// Game loop. Will iterate per turn until game is over
-		while(true) {
+		ActionListener buttonListener = new ActionListener() {
 			
-			teamSelected = team[teamCounter%2];
-			
-			printBoard(teamSelected);
-			System.out.println("Team: " + teamSelected +"\nWhat piece would you like to move?");
-			String selectedPiece = myObj.nextLine().toUpperCase();
-			
-			Boolean temp = validateMove(selectedPiece);
-			if (temp == false)
-				break;
-			
-		    int potTemp = potentialMove(selectedPiece, teamSelected);
-		    
-		    if (potTemp == 1) 
-				continue;
-		    
-		    printBoard(teamSelected);
-			
-			
-			// Plays move
-			System.out.println("Team: " + teamSelected +"\nWhere would you like to move your piece too?");
-			String selectedSlot = myObj.nextLine().toUpperCase();
-			
-			temp = validateMove(selectedSlot);
-			if (temp == false)
-				break;
-			
-			int winner = playMove(selectedPiece, selectedSlot);
-			if (winner == 1)
-				break;
-			
-			teamCounter++;	
-		}
-		System.out.println(teamSelected+" Wins!!!");
+		    	@Override
+		    	public void actionPerformed(ActionEvent e) {
+		    		int[] coords = new int[2];
+		    		coords = findButton(e.getSource());
+		    		updateUIboard(coords);
+		    	}
+		};
+		
+	    generateBoard(team[0], buttonListener); 
+	    
+	    
+		frame.add(output); 	 
+	    frame.setSize(400,400);  
+	    frame.setLayout(new GridLayout(9, 8));  
+	    frame.setBackground(Color.BLACK);
+	    frame.setVisible(true); 
+	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
+	
+	public static void updateUIboard(int[] coords) {
+		int x = coords[0];
+		int y = coords[1];
+		String[] team = {"WHITE", "BLACK"};
+		String teamSelected = team[count%2];
+		
+		System.out.println(teamSelected);
+		
+		if(pieceCoords[0] == -1) {
+			for(int i = 0; i < pieceCoords.length; i++)
+				pieceCoords[i] = coords[i];
+			System.out.println("Count: "+count+" Piece Coords:"+pieceCoords[0]+", "+pieceCoords[1]);
+			potentialMove(pieceCoords, teamSelected);
+		}
+		else if (nextMove[0] == -1) {
+			for(int i = 0; i < nextMove.length; i++)
+				nextMove[i] = coords[i];
+			count++;
+			System.out.println("Count: "+count+" Next Move: "+nextMove[0]+", "+nextMove[1]);
+			playMove(pieceCoords, nextMove);
+		}
+		
+	}
+	private static int[] findButton(Object c) {
+		int[] coords = new int[2];
+        for (int x = 0; x < buttons.length; x++) {
+            for (int y = 0; y < buttons[0].length; y++) {
+                if (c.equals(buttons[x][y])) {
+                    output.setText(x + "," + y + " clicked");
+                    coords[0] = x;
+                    coords[1] = y;
+                    return coords;
+                }
+            }
+        }
+        return coords;
+    }
 	
 	/*
 	 * Will move the piece to a valid position
 	 */
-	public static int playMove(String currentPiece, String possibleDestination) {
+	public static int playMove(int[] currentPiece, int[] possibleDestination) {
 		String emptySlot = "[ ]";
 		String possibleSlot = "[*]";
 		
 		// Coordinates for current selected piece
-		int currentCol = currentPiece.charAt(0) - 65;
-		int currentRow = currentPiece.charAt(1) - 49;
+		int currentCol = currentPiece[1];
+		int currentRow = currentPiece[0];
 		
 		// Coordinates for possible move
-		int possibleCol = possibleDestination.charAt(0) - 65;
-		int possibleRow = possibleDestination.charAt(1) - 49;
+		int possibleCol = possibleDestination[1];
+		int possibleRow = possibleDestination[0];
+		
+		//reset coords
+		for(int i = 0; i<pieceCoords.length; i++) {
+			pieceCoords[i] = -1;
+			nextMove[i] = -1;
+		}
 		
 		if(chessboard[possibleRow][possibleCol].getPiece().equals(possibleSlot)) {
 			chessboard[possibleRow][possibleCol].setPiece(chessboard[currentRow][currentCol].getPiece());
 			chessboard[possibleRow][possibleCol].setTeam(chessboard[currentRow][currentCol].getTeam());
 			
+			buttons[possibleRow][possibleCol].setText(chessboard[possibleRow][possibleCol].getPiece());
+			
 			chessboard[currentRow][currentCol].setPiece(emptySlot);
 			chessboard[currentRow][currentCol].setTeam(null);
+			
+			buttons[currentRow][currentCol].setText(emptySlot);
 		}
 		else if(chessboard[possibleRow][possibleCol].getPiece().contains("{")) {
 			// If 'King' gets eaten, game ends
@@ -106,17 +146,25 @@ public class Chess {
 			chessboard[possibleRow][possibleCol].setPiece(chessboard[currentRow][currentCol].getPiece());
 			chessboard[possibleRow][possibleCol].setTeam(chessboard[currentRow][currentCol].getTeam());
 			
+			buttons[possibleRow][possibleCol].setText(chessboard[possibleRow][possibleCol].getPiece());
+			
 			chessboard[currentRow][currentCol].setPiece(emptySlot);
 			chessboard[currentRow][currentCol].setTeam(null);
+			
+			buttons[currentRow][currentCol].setText(emptySlot);
 		}
 		// Removes the "Potential" moves from the board
 		for(int i = 0; i < chessboard.length; i++) {
 			for(int j = 0; j < chessboard[0].length; j++) {
-				if(chessboard[i][j].getPiece().equals(possibleSlot))
+				if(chessboard[i][j].getPiece().equals(possibleSlot)) {
 					chessboard[i][j].setPiece(emptySlot);
+					buttons[i][j].setText(emptySlot);
+				}
 				
-				if (chessboard[i][j].getPiece().contains("{")) 
+				if (chessboard[i][j].getPiece().contains("{")) {
 					chessboard[i][j].setPiece(chessboard[i][j].getPiece().replace('{', '[').replace('}', ']'));
+					buttons[i][j].setText(chessboard[i][j].getPiece());
+				}
 			}
 		}
 		
@@ -129,13 +177,13 @@ public class Chess {
 	 * A 'return 1' means that the user selected an invalid piece
 	 */
 	
-	public static int potentialMove(String userInput, String currentTeam) {
+	public static int potentialMove(int[] userInput, String currentTeam) {
 		int maxMovableSlots = chessboard.length;
 		int minMovableSlots = 1;
 		int pawnMovableSlots = 2;
 		
-		int gameCol = userInput.charAt(0) - 65;
-		int gameRow = userInput.charAt(1) - 49;
+		int gameCol = userInput[1];
+		int gameRow = userInput[0];
 		
 		// Checks to see if selected piece is an empty slot. If so, it returns for 
 		if (chessboard[gameRow][gameCol].getTeam() == null)
@@ -190,13 +238,17 @@ public class Chess {
 		if (currentTeam.equals(teamWhite)) { 
 			if(gameRow == 1){
 				for(int i = 1; i <= maxMovableSlots; i++) {
-					if(chessboard[gameRow+ i][gameCol].getPiece().equals(emptySlot)) 
+					if(chessboard[gameRow+ i][gameCol].getPiece().equals(emptySlot)) {
 						chessboard[gameRow+ i][gameCol].setPiece(possibleMove);
+						buttons[gameRow + i][gameCol].setText(possibleMove);
+					}
 				}
 			}
 			else {
-				if(chessboard[gameRow+1][gameCol].getPiece().equals(emptySlot)) 
+				if(chessboard[gameRow+1][gameCol].getPiece().equals(emptySlot)) {
 					chessboard[gameRow+1][gameCol].setPiece(possibleMove);
+					buttons[gameRow+1][gameCol].setText(possibleMove);
+				}
 			}
 			// Checks right Diagonal
 			if (gameRow + 1 > chessboard.length - 1 || gameCol + 1 > chessboard.length -1)
@@ -213,13 +265,18 @@ public class Chess {
 		else {
 			if(gameRow == 6){
 				for(int i = 1; i <= maxMovableSlots; i++) {
-					if(chessboard[gameRow- i][gameCol].getPiece().equals(emptySlot)) 
+					if(chessboard[gameRow- i][gameCol].getPiece().equals(emptySlot)) {
 						chessboard[gameRow- i][gameCol].setPiece(possibleMove);
+						buttons[gameRow- i][gameCol].setText(possibleMove);
+						
+					}
 				}
 			}
 			else {
-				if(chessboard[gameRow-1][gameCol].getPiece().equals(emptySlot)) 
+				if(chessboard[gameRow-1][gameCol].getPiece().equals(emptySlot)) {
 					chessboard[gameRow-1][gameCol].setPiece(possibleMove);
+					buttons[gameRow-1][gameCol].setText(possibleMove);
+				}
 				
 			}
 			// Checks right Diagonal
@@ -254,8 +311,10 @@ public class Chess {
 					if (gameRow + j > chessboard.length - 1)
 						break;
 					// Up
-					if(chessboard[gameRow + j][gameCol].getPiece().equals(emptySlot))
+					if(chessboard[gameRow + j][gameCol].getPiece().equals(emptySlot)) {
 						chessboard[gameRow+ j][gameCol].setPiece(possibleMove);
+						buttons[gameRow+ j][gameCol].setText(possibleMove);
+					}
 					else {
 						markTarget(gameRow+j, gameCol, currentTeam);
 						break;
@@ -266,8 +325,11 @@ public class Chess {
 					if (gameRow - j < 0)
 						break;
 					// Down
-					if(chessboard[gameRow - j][gameCol].getPiece().equals(emptySlot))
+					if(chessboard[gameRow - j][gameCol].getPiece().equals(emptySlot)) {
 						chessboard[gameRow- j][gameCol].setPiece(possibleMove);
+						buttons[gameRow- j][gameCol].setText(possibleMove);
+						
+					}
 					else{
 						markTarget(gameRow-j, gameCol, currentTeam);
 						break;
@@ -278,8 +340,11 @@ public class Chess {
 					if (gameCol  + j > chessboard.length -1)
 						break;
 					// Right
-					if(chessboard[gameRow][gameCol + j].getPiece().equals(emptySlot))
+					if(chessboard[gameRow][gameCol + j].getPiece().equals(emptySlot)) {
 						chessboard[gameRow][gameCol + j].setPiece(possibleMove);
+						buttons[gameRow][gameCol + j].setText(possibleMove);
+						
+					}
 					else{
 						markTarget(gameRow, gameCol+j, currentTeam);
 						break;
@@ -290,8 +355,10 @@ public class Chess {
 					if (gameCol - j < 0)	
 						break;
 					// Left
-					if(chessboard[gameRow][gameCol - j].getPiece().equals(emptySlot))
+					if(chessboard[gameRow][gameCol - j].getPiece().equals(emptySlot)) {
 						chessboard[gameRow][gameCol - j].setPiece(possibleMove);
+						buttons[gameRow][gameCol - j].setText(possibleMove);
+					}
 					else{
 						markTarget(gameRow, gameCol-j, currentTeam);
 						break;
@@ -313,6 +380,8 @@ public class Chess {
 		
 		chessboard[gameRow][gameCol].setPiece(chessboard[gameRow][gameCol].getPiece().replace('[', '{').replace(']','}'));
 		
+		buttons[gameRow][gameCol].setText(chessboard[gameRow][gameCol].getPiece());
+		
 	}
 	
 	/*
@@ -333,8 +402,10 @@ public class Chess {
 					if (gameRow + j > chessboard.length -1 || gameCol + j > chessboard.length - 1)
 						break;
 					// Diagonal upper right
-					if(chessboard[gameRow + j][gameCol + j].getPiece().equals(emptySlot))
+					if(chessboard[gameRow + j][gameCol + j].getPiece().equals(emptySlot)) {
 						chessboard[gameRow+ j][gameCol + j].setPiece(possibleMove);
+						buttons[gameRow+ j][gameCol + j].setText(possibleMove);
+					}
 					else{
 						markTarget(gameRow+j, gameCol+j, currentTeam);
 						break;
@@ -345,8 +416,10 @@ public class Chess {
 					if (gameRow - j < 0 || gameCol - j < 0)
 						break;
 					// Diagonal lower left
-					if(chessboard[gameRow - j][gameCol - j].getPiece().equals(emptySlot))
+					if(chessboard[gameRow - j][gameCol - j].getPiece().equals(emptySlot)) {
 						chessboard[gameRow- j][gameCol - j].setPiece(possibleMove);
+						buttons[gameRow- j][gameCol - j].setText(possibleMove);
+					}
 					else{
 						markTarget(gameRow-j, gameCol-j, currentTeam);
 						break;
@@ -357,8 +430,10 @@ public class Chess {
 					if (gameRow  + j > chessboard.length -1 || gameCol - j < 0)
 						break;
 					// Diagonal upper left
-					if(chessboard[gameRow + j][gameCol - j].getPiece().equals(emptySlot))
+					if(chessboard[gameRow + j][gameCol - j].getPiece().equals(emptySlot)) {
 						chessboard[gameRow + j][gameCol - j].setPiece(possibleMove);
+						buttons[gameRow + j][gameCol - j].setText(possibleMove);
+					}
 					else{
 						markTarget(gameRow+j, gameCol-j, currentTeam);
 						break;
@@ -369,8 +444,10 @@ public class Chess {
 					if (gameRow - j < 0 || gameCol  + j > chessboard.length -1)	
 						break;
 					// Diagonal lower right
-					if(chessboard[gameRow - j][gameCol + j].getPiece().equals(emptySlot))
+					if(chessboard[gameRow - j][gameCol + j].getPiece().equals(emptySlot)) {
 						chessboard[gameRow - j][gameCol + j].setPiece(possibleMove);
+						buttons[gameRow - j][gameCol + j].setText(possibleMove);
+					}
 					else{
 						markTarget(gameRow-j, gameCol+j, currentTeam);
 						break;
@@ -399,8 +476,10 @@ public class Chess {
 				if (gameRow + directionTwo > chessboard.length -1 || gameCol  - directionOne < 0)	
 					continue;
 				// 2Ux1L
-				if(chessboard[gameRow + directionTwo][gameCol - directionOne].getPiece().equals(emptySlot))
+				if(chessboard[gameRow + directionTwo][gameCol - directionOne].getPiece().equals(emptySlot)) {
 					chessboard[gameRow +directionTwo][gameCol - directionOne].setPiece(possibleMove);
+					buttons[gameRow +directionTwo][gameCol - directionOne].setText(possibleMove);
+				}
 				else{
 					markTarget(gameRow+directionTwo, gameCol-directionOne, currentTeam);
 					break;
@@ -411,8 +490,10 @@ public class Chess {
 				if (gameRow + directionTwo > chessboard.length -1 || gameCol  + directionOne > chessboard.length -1)	
 					continue;
 				// 2Ux1R
-				if(chessboard[gameRow + directionTwo][gameCol + directionOne].getPiece().equals(emptySlot))
+				if(chessboard[gameRow + directionTwo][gameCol + directionOne].getPiece().equals(emptySlot)) {
 					chessboard[gameRow + directionTwo][gameCol + directionOne].setPiece(possibleMove);
+					buttons[gameRow + directionTwo][gameCol + directionOne].setText(possibleMove);
+				}
 				else{
 					markTarget(gameRow+directionTwo, gameCol+directionOne, currentTeam);
 					break;
@@ -423,8 +504,10 @@ public class Chess {
 				if (gameRow - directionTwo < 0 || gameCol  - directionOne < 0)	
 					continue;
 				// 2Dx1L
-				if(chessboard[gameRow - directionTwo][gameCol - directionOne].getPiece().equals(emptySlot))
+				if(chessboard[gameRow - directionTwo][gameCol - directionOne].getPiece().equals(emptySlot)) {
 					chessboard[gameRow - directionTwo][gameCol - directionOne].setPiece(possibleMove);
+					buttons[gameRow - directionTwo][gameCol - directionOne].setText(possibleMove);
+				}
 				else{
 					markTarget(gameRow-directionTwo, gameCol-directionOne, currentTeam);
 					break;
@@ -435,8 +518,10 @@ public class Chess {
 				if (gameRow - directionTwo < 0 || gameCol  + directionOne > chessboard.length - 1)	
 					continue;
 				// 2Dx1R
-				if(chessboard[gameRow - directionTwo][gameCol + directionOne].getPiece().equals(emptySlot))
+				if(chessboard[gameRow - directionTwo][gameCol + directionOne].getPiece().equals(emptySlot)) {
 					chessboard[gameRow - directionTwo][gameCol + directionOne].setPiece(possibleMove);
+					buttons[gameRow - directionTwo][gameCol + directionOne].setText(possibleMove);
+				}
 				else{
 					markTarget(gameRow-directionTwo, gameCol+directionOne, currentTeam);
 					break;
@@ -447,8 +532,10 @@ public class Chess {
 				if (gameRow + directionOne > chessboard.length - 1 || gameCol - directionTwo < 0)	
 					continue;
 				// 1Ux2L
-				if(chessboard[gameRow + directionOne][gameCol - directionTwo].getPiece().equals(emptySlot))
+				if(chessboard[gameRow + directionOne][gameCol - directionTwo].getPiece().equals(emptySlot)) {
 					chessboard[gameRow + directionOne][gameCol - directionTwo].setPiece(possibleMove);
+					buttons[gameRow + directionOne][gameCol - directionTwo].setText(possibleMove);
+				}
 				else{
 					markTarget(gameRow+directionOne, gameCol-directionTwo, currentTeam);
 					break;
@@ -459,8 +546,9 @@ public class Chess {
 				if (gameRow + directionOne > chessboard.length - 1 || gameCol + directionTwo > chessboard.length - 1)	
 					continue;
 				// 1Ux2R
-				if(chessboard[gameRow + directionOne][gameCol + directionTwo].getPiece().equals(emptySlot))
-					chessboard[gameRow + directionOne][gameCol + directionTwo].setPiece(possibleMove);
+				if(chessboard[gameRow + directionOne][gameCol + directionTwo].getPiece().equals(emptySlot)) {
+					buttons[gameRow + directionOne][gameCol + directionTwo].setText(possibleMove);
+				}
 				else{
 					markTarget(gameRow+directionOne, gameCol+directionTwo, currentTeam);
 					break;
@@ -471,8 +559,10 @@ public class Chess {
 				if (gameRow - directionOne < 0 || gameCol - directionTwo < 0)	
 					continue;
 				// 1Dx2L
-				if(chessboard[gameRow - directionOne][gameCol - directionTwo].getPiece().equals(emptySlot))
+				if(chessboard[gameRow - directionOne][gameCol - directionTwo].getPiece().equals(emptySlot)) {
 					chessboard[gameRow - directionOne][gameCol - directionTwo].setPiece(possibleMove);
+					buttons[gameRow - directionOne][gameCol - directionTwo].setText(possibleMove);
+				}
 				else{
 					markTarget(gameRow-directionOne, gameCol-directionTwo, currentTeam);
 					break;
@@ -483,8 +573,10 @@ public class Chess {
 				if (gameRow - directionOne < 0 || gameCol + directionTwo > chessboard.length - 1)	
 					continue;
 				// 1Dx2R
-				if(chessboard[gameRow - directionOne][gameCol + directionTwo].getPiece().equals(emptySlot))
+				if(chessboard[gameRow - directionOne][gameCol + directionTwo].getPiece().equals(emptySlot)) {
 					chessboard[gameRow - directionOne][gameCol + directionTwo].setPiece(possibleMove);
+					buttons[gameRow - directionOne][gameCol + directionTwo].setText(possibleMove);
+				}
 				else{
 					markTarget(gameRow-directionOne, gameCol+directionTwo, currentTeam);
 					break;
@@ -512,8 +604,7 @@ public class Chess {
 	/*
 	 * Populates the chess board with the starting position of every piece
 	 */
-	public static int generateBoard(String teamSelected) {
-		
+	public static int generateBoard(String teamSelected, ActionListener buttonListener) {
 		String[] kingRow = {"[R]", "[k]", "[B]", "[Q]", "[K]", "[B]", "[k]", "[R]"};
 		String[] pawnRow = {"[P]", "[P]", "[P]", "[P]", "[P]", "[P]", "[P]", "[P]"};
 		String teamWhite = "WHITE";
@@ -524,6 +615,10 @@ public class Chess {
 			for(int j = 0; j < chessboard[0].length; j++) {
 				chessboard[i][j] = new ChessInfo();
 				chessboard[i][j].setPiece("[ ]");
+				
+				buttons[i][j] = new JButton("[ ]");
+		        buttons[i][j].addActionListener(buttonListener);
+		        frame.add(buttons[i][j]); 
 			}
 		}
 		
@@ -544,6 +639,10 @@ public class Chess {
 				chessboard[1][i].setPiece(pawnRow[i]);
 				chessboard[1][i].setTeam(teamWhite);
 				
+				buttons[0][i].setText(kingRow[i]);
+				buttons[1][i].setText(pawnRow[i]);
+				
+				
 				// Populate king row and assign proper team: "BLACK"
 				chessboard[chessboard.length-1][i].setPiece(kingRow[i]);
 				chessboard[chessboard.length-1][i].setTeam(teamBlack);
@@ -551,6 +650,9 @@ public class Chess {
 				// Populate pawn row and assign proper team: "BLACK"
 				chessboard[chessboard.length-2][i].setPiece(pawnRow[i]);
 				chessboard[chessboard.length-2][i].setTeam(teamBlack);
+				
+				buttons[chessboard.length-1][i].setText(kingRow[i]);
+				buttons[chessboard.length-2][i].setText(pawnRow[i]);
 				
 			}
 			
