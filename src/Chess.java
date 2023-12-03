@@ -53,11 +53,12 @@ public class Chess {
 		    	public void actionPerformed(ActionEvent e) {
 		    		int[] coords = new int[2];
 		    		coords = findButton(e.getSource());
-		    		updateUIboard(coords);
+		    		playGame(coords);
 		    	}
 		};
 		
 	    generateBoard(team[0], buttonListener); 
+	    updateBoard(team[0]);
 	    
 	    
 		frame.add(output); 	 
@@ -68,7 +69,7 @@ public class Chess {
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
-	public static void updateUIboard(int[] coords) {
+	public static void playGame(int[] coords) {
 		int x = coords[0];
 		int y = coords[1];
 		String[] team = {"WHITE", "BLACK"};
@@ -79,16 +80,18 @@ public class Chess {
 		if(pieceCoords[0] == -1) {
 			for(int i = 0; i < pieceCoords.length; i++)
 				pieceCoords[i] = coords[i];
-			System.out.println("Count: "+count+" Piece Coords:"+pieceCoords[0]+", "+pieceCoords[1]);
+			//System.out.println("Count: "+count+" Piece Coords:"+pieceCoords[0]+", "+pieceCoords[1]);
 			potentialMove(pieceCoords, teamSelected);
 		}
 		else if (nextMove[0] == -1) {
 			for(int i = 0; i < nextMove.length; i++)
 				nextMove[i] = coords[i];
 			count++;
-			System.out.println("Count: "+count+" Next Move: "+nextMove[0]+", "+nextMove[1]);
+			//System.out.println("Count: "+count+" Next Move: "+nextMove[0]+", "+nextMove[1]);
 			playMove(pieceCoords, nextMove);
 		}
+		System.out.println("team: "+ teamSelected);
+		updateBoard(teamSelected);
 		
 	}
 	private static int[] findButton(Object c) {
@@ -131,12 +134,8 @@ public class Chess {
 			chessboard[possibleRow][possibleCol].setPiece(chessboard[currentRow][currentCol].getPiece());
 			chessboard[possibleRow][possibleCol].setTeam(chessboard[currentRow][currentCol].getTeam());
 			
-			buttons[possibleRow][possibleCol].setText(chessboard[possibleRow][possibleCol].getPiece());
-			
 			chessboard[currentRow][currentCol].setPiece(emptySlot);
 			chessboard[currentRow][currentCol].setTeam(null);
-			
-			buttons[currentRow][currentCol].setText(emptySlot);
 		}
 		else if(chessboard[possibleRow][possibleCol].getPiece().contains("{")) {
 			// If 'King' gets eaten, game ends
@@ -146,24 +145,18 @@ public class Chess {
 			chessboard[possibleRow][possibleCol].setPiece(chessboard[currentRow][currentCol].getPiece());
 			chessboard[possibleRow][possibleCol].setTeam(chessboard[currentRow][currentCol].getTeam());
 			
-			buttons[possibleRow][possibleCol].setText(chessboard[possibleRow][possibleCol].getPiece());
-			
 			chessboard[currentRow][currentCol].setPiece(emptySlot);
 			chessboard[currentRow][currentCol].setTeam(null);
-			
-			buttons[currentRow][currentCol].setText(emptySlot);
 		}
 		// Removes the "Potential" moves from the board
 		for(int i = 0; i < chessboard.length; i++) {
 			for(int j = 0; j < chessboard[0].length; j++) {
 				if(chessboard[i][j].getPiece().equals(possibleSlot)) {
 					chessboard[i][j].setPiece(emptySlot);
-					buttons[i][j].setText(emptySlot);
 				}
 				
 				if (chessboard[i][j].getPiece().contains("{")) {
 					chessboard[i][j].setPiece(chessboard[i][j].getPiece().replace('{', '[').replace('}', ']'));
-					buttons[i][j].setText(chessboard[i][j].getPiece());
 				}
 			}
 		}
@@ -240,14 +233,12 @@ public class Chess {
 				for(int i = 1; i <= maxMovableSlots; i++) {
 					if(chessboard[gameRow+ i][gameCol].getPiece().equals(emptySlot)) {
 						chessboard[gameRow+ i][gameCol].setPiece(possibleMove);
-						buttons[gameRow + i][gameCol].setText(possibleMove);
 					}
 				}
 			}
 			else {
 				if(chessboard[gameRow+1][gameCol].getPiece().equals(emptySlot)) {
 					chessboard[gameRow+1][gameCol].setPiece(possibleMove);
-					buttons[gameRow+1][gameCol].setText(possibleMove);
 				}
 			}
 			// Checks right Diagonal
@@ -267,7 +258,6 @@ public class Chess {
 				for(int i = 1; i <= maxMovableSlots; i++) {
 					if(chessboard[gameRow- i][gameCol].getPiece().equals(emptySlot)) {
 						chessboard[gameRow- i][gameCol].setPiece(possibleMove);
-						buttons[gameRow- i][gameCol].setText(possibleMove);
 						
 					}
 				}
@@ -275,7 +265,6 @@ public class Chess {
 			else {
 				if(chessboard[gameRow-1][gameCol].getPiece().equals(emptySlot)) {
 					chessboard[gameRow-1][gameCol].setPiece(possibleMove);
-					buttons[gameRow-1][gameCol].setText(possibleMove);
 				}
 				
 			}
@@ -313,7 +302,6 @@ public class Chess {
 					// Up
 					if(chessboard[gameRow + j][gameCol].getPiece().equals(emptySlot)) {
 						chessboard[gameRow+ j][gameCol].setPiece(possibleMove);
-						buttons[gameRow+ j][gameCol].setText(possibleMove);
 					}
 					else {
 						markTarget(gameRow+j, gameCol, currentTeam);
@@ -327,7 +315,6 @@ public class Chess {
 					// Down
 					if(chessboard[gameRow - j][gameCol].getPiece().equals(emptySlot)) {
 						chessboard[gameRow- j][gameCol].setPiece(possibleMove);
-						buttons[gameRow- j][gameCol].setText(possibleMove);
 						
 					}
 					else{
@@ -342,7 +329,6 @@ public class Chess {
 					// Right
 					if(chessboard[gameRow][gameCol + j].getPiece().equals(emptySlot)) {
 						chessboard[gameRow][gameCol + j].setPiece(possibleMove);
-						buttons[gameRow][gameCol + j].setText(possibleMove);
 						
 					}
 					else{
@@ -357,7 +343,6 @@ public class Chess {
 					// Left
 					if(chessboard[gameRow][gameCol - j].getPiece().equals(emptySlot)) {
 						chessboard[gameRow][gameCol - j].setPiece(possibleMove);
-						buttons[gameRow][gameCol - j].setText(possibleMove);
 					}
 					else{
 						markTarget(gameRow, gameCol-j, currentTeam);
@@ -379,9 +364,6 @@ public class Chess {
 			return;
 		
 		chessboard[gameRow][gameCol].setPiece(chessboard[gameRow][gameCol].getPiece().replace('[', '{').replace(']','}'));
-		
-		buttons[gameRow][gameCol].setText(chessboard[gameRow][gameCol].getPiece());
-		
 	}
 	
 	/*
@@ -404,7 +386,6 @@ public class Chess {
 					// Diagonal upper right
 					if(chessboard[gameRow + j][gameCol + j].getPiece().equals(emptySlot)) {
 						chessboard[gameRow+ j][gameCol + j].setPiece(possibleMove);
-						buttons[gameRow+ j][gameCol + j].setText(possibleMove);
 					}
 					else{
 						markTarget(gameRow+j, gameCol+j, currentTeam);
@@ -418,7 +399,6 @@ public class Chess {
 					// Diagonal lower left
 					if(chessboard[gameRow - j][gameCol - j].getPiece().equals(emptySlot)) {
 						chessboard[gameRow- j][gameCol - j].setPiece(possibleMove);
-						buttons[gameRow- j][gameCol - j].setText(possibleMove);
 					}
 					else{
 						markTarget(gameRow-j, gameCol-j, currentTeam);
@@ -432,7 +412,6 @@ public class Chess {
 					// Diagonal upper left
 					if(chessboard[gameRow + j][gameCol - j].getPiece().equals(emptySlot)) {
 						chessboard[gameRow + j][gameCol - j].setPiece(possibleMove);
-						buttons[gameRow + j][gameCol - j].setText(possibleMove);
 					}
 					else{
 						markTarget(gameRow+j, gameCol-j, currentTeam);
@@ -446,7 +425,6 @@ public class Chess {
 					// Diagonal lower right
 					if(chessboard[gameRow - j][gameCol + j].getPiece().equals(emptySlot)) {
 						chessboard[gameRow - j][gameCol + j].setPiece(possibleMove);
-						buttons[gameRow - j][gameCol + j].setText(possibleMove);
 					}
 					else{
 						markTarget(gameRow-j, gameCol+j, currentTeam);
@@ -478,7 +456,6 @@ public class Chess {
 				// 2Ux1L
 				if(chessboard[gameRow + directionTwo][gameCol - directionOne].getPiece().equals(emptySlot)) {
 					chessboard[gameRow +directionTwo][gameCol - directionOne].setPiece(possibleMove);
-					buttons[gameRow +directionTwo][gameCol - directionOne].setText(possibleMove);
 				}
 				else{
 					markTarget(gameRow+directionTwo, gameCol-directionOne, currentTeam);
@@ -492,7 +469,6 @@ public class Chess {
 				// 2Ux1R
 				if(chessboard[gameRow + directionTwo][gameCol + directionOne].getPiece().equals(emptySlot)) {
 					chessboard[gameRow + directionTwo][gameCol + directionOne].setPiece(possibleMove);
-					buttons[gameRow + directionTwo][gameCol + directionOne].setText(possibleMove);
 				}
 				else{
 					markTarget(gameRow+directionTwo, gameCol+directionOne, currentTeam);
@@ -506,7 +482,6 @@ public class Chess {
 				// 2Dx1L
 				if(chessboard[gameRow - directionTwo][gameCol - directionOne].getPiece().equals(emptySlot)) {
 					chessboard[gameRow - directionTwo][gameCol - directionOne].setPiece(possibleMove);
-					buttons[gameRow - directionTwo][gameCol - directionOne].setText(possibleMove);
 				}
 				else{
 					markTarget(gameRow-directionTwo, gameCol-directionOne, currentTeam);
@@ -520,7 +495,6 @@ public class Chess {
 				// 2Dx1R
 				if(chessboard[gameRow - directionTwo][gameCol + directionOne].getPiece().equals(emptySlot)) {
 					chessboard[gameRow - directionTwo][gameCol + directionOne].setPiece(possibleMove);
-					buttons[gameRow - directionTwo][gameCol + directionOne].setText(possibleMove);
 				}
 				else{
 					markTarget(gameRow-directionTwo, gameCol+directionOne, currentTeam);
@@ -534,7 +508,6 @@ public class Chess {
 				// 1Ux2L
 				if(chessboard[gameRow + directionOne][gameCol - directionTwo].getPiece().equals(emptySlot)) {
 					chessboard[gameRow + directionOne][gameCol - directionTwo].setPiece(possibleMove);
-					buttons[gameRow + directionOne][gameCol - directionTwo].setText(possibleMove);
 				}
 				else{
 					markTarget(gameRow+directionOne, gameCol-directionTwo, currentTeam);
@@ -547,7 +520,7 @@ public class Chess {
 					continue;
 				// 1Ux2R
 				if(chessboard[gameRow + directionOne][gameCol + directionTwo].getPiece().equals(emptySlot)) {
-					buttons[gameRow + directionOne][gameCol + directionTwo].setText(possibleMove);
+					chessboard[gameRow + directionOne][gameCol + directionTwo].setPiece(possibleMove);
 				}
 				else{
 					markTarget(gameRow+directionOne, gameCol+directionTwo, currentTeam);
@@ -561,7 +534,6 @@ public class Chess {
 				// 1Dx2L
 				if(chessboard[gameRow - directionOne][gameCol - directionTwo].getPiece().equals(emptySlot)) {
 					chessboard[gameRow - directionOne][gameCol - directionTwo].setPiece(possibleMove);
-					buttons[gameRow - directionOne][gameCol - directionTwo].setText(possibleMove);
 				}
 				else{
 					markTarget(gameRow-directionOne, gameCol-directionTwo, currentTeam);
@@ -575,7 +547,6 @@ public class Chess {
 				// 1Dx2R
 				if(chessboard[gameRow - directionOne][gameCol + directionTwo].getPiece().equals(emptySlot)) {
 					chessboard[gameRow - directionOne][gameCol + directionTwo].setPiece(possibleMove);
-					buttons[gameRow - directionOne][gameCol + directionTwo].setText(possibleMove);
 				}
 				else{
 					markTarget(gameRow-directionOne, gameCol+directionTwo, currentTeam);
@@ -618,6 +589,7 @@ public class Chess {
 				
 				buttons[i][j] = new JButton("[ ]");
 		        buttons[i][j].addActionListener(buttonListener);
+		        buttons[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
 		        frame.add(buttons[i][j]); 
 			}
 		}
@@ -631,17 +603,12 @@ public class Chess {
 		else {
 			for(int i = 0; i < chessboard.length; i++) {
 				// Populate king row and assign proper team: "WHITE"
-				
 				chessboard[0][i].setPiece(kingRow[i]);
 				chessboard[0][i].setTeam(teamWhite);
 				
 				// Populate pawn row and assign proper team: "WHITE"
 				chessboard[1][i].setPiece(pawnRow[i]);
 				chessboard[1][i].setTeam(teamWhite);
-				
-				buttons[0][i].setText(kingRow[i]);
-				buttons[1][i].setText(pawnRow[i]);
-				
 				
 				// Populate king row and assign proper team: "BLACK"
 				chessboard[chessboard.length-1][i].setPiece(kingRow[i]);
@@ -650,10 +617,6 @@ public class Chess {
 				// Populate pawn row and assign proper team: "BLACK"
 				chessboard[chessboard.length-2][i].setPiece(pawnRow[i]);
 				chessboard[chessboard.length-2][i].setTeam(teamBlack);
-				
-				buttons[chessboard.length-1][i].setText(kingRow[i]);
-				buttons[chessboard.length-2][i].setText(pawnRow[i]);
-				
 			}
 			
 		}
@@ -665,39 +628,40 @@ public class Chess {
 	/*
 	 * Prints out the chess board to console
 	 */
-	public static void printBoard(String teamSelected) {
+	public static void updateBoard(String teamSelected) {
 		String teamWhite = "WHITE";
 		String teamBlack = "BLACK";
-		String YELLOW = "\u001B[33m";
-		String GREEN = "\u001B[32m";
-		String RESET = "\u001B[0m";
 		
 		// Prints from "WHITE" POV
 		if (teamSelected.equals(teamWhite)) {
 			for(int i = chessboard.length -1; i >= 0; i--) {
 				for (int j = 0; j < chessboard[0].length; j++) {
-					if (chessboard[i][j].getTeam() == null)
-						System.out.print(RESET+ chessboard[i][j].getPiece());
+					buttons[i][j].setText(chessboard[i][j].getPiece());
+					if (chessboard[i][j].getPiece().contains("*")) 
+						buttons[i][j].setForeground(Color.green);
+					else if (chessboard[i][j].getTeam() == null)
+						buttons[i][j].setForeground(Color.white);
 					else if(chessboard[i][j].getTeam().equals(teamWhite))
-						System.out.print(GREEN+ chessboard[i][j].getPiece());
+						buttons[i][j].setForeground(Color.LIGHT_GRAY);
 					else if(chessboard[i][j].getTeam().equals(teamBlack))
-						System.out.print(YELLOW+ chessboard[i][j].getPiece());
+						buttons[i][j].setForeground(Color.BLACK);
 				}
-				System.out.println(RESET);
 			}	
 		}
 		// Prints from "BLACK" POV
 		else {
 			for(int i = 0; i < chessboard.length; i++) {
 				for (int j = chessboard[0].length -1; j >=0; j--) {
-					if (chessboard[i][j].getTeam() == null)
-						System.out.print(RESET+ chessboard[i][j].getPiece());
+					buttons[i][j].setText(chessboard[i][j].getPiece());
+					if (chessboard[i][j].getPiece().contains("*")) 
+						buttons[i][j].setForeground(Color.green);
+					else if (chessboard[i][j].getTeam() == null)
+						buttons[i][j].setForeground(Color.white);
 					else if(chessboard[i][j].getTeam().equals(teamWhite))
-						System.out.print(GREEN+ chessboard[i][j].getPiece());
+						buttons[i][j].setForeground(Color.LIGHT_GRAY);
 					else if(chessboard[i][j].getTeam().equals(teamBlack))
-						System.out.print(YELLOW+ chessboard[i][j].getPiece());
+						buttons[i][j].setForeground(Color.BLACK);
 				}
-				System.out.println(RESET);
 			}
 		}
 	}
