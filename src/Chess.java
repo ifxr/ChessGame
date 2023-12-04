@@ -201,7 +201,12 @@ public class Chess {
 		}
 		// 'Knight' Movement
 		else if(chessboard[gameRow][gameCol].getPiece().equals("[k]")) {
-			knightMovement(gameRow, gameCol, maxMovableSlots);
+			int[] directionOne = {2, 2, -2, -2, 1, 1, -1, -1};
+			int[] directionTwo = {-1, 1, -1, 1, -2, 2, -2, 2};
+			
+			// 2Ux1L, 2Ux1R, 2Dx1L, 2Dx1R, 1Ux2L, 1Ux2R, 1Dx2L, 1Dx2R
+			for(int i = 0; i<directionOne.length; i++)
+				knightMovement(gameRow, gameCol, directionOne[i], directionTwo[i]);
 		}
 		// "Queen" piece movement
 		else if(chessboard[gameRow][gameCol].getPiece().equals("[Q]")) {
@@ -441,135 +446,36 @@ public class Chess {
 	 * This method allows selected piece to move to 8 different slots:
 	 * 2Ux1L, 2Ux1R, 2Dx1L, 2Dx1R, 2Lx1U, 2Lx1D, 2Rx1U, 2Rx1D 
 	 */
-	public static void knightMovement(int gameRow, int gameCol, int maxMovableSlots) {
-		String possibleMove = "[*]";
-		String emptySlot = "[ ]";
-		int directionOne = 1;
-		int directionTwo = 2;
+	public static void knightMovement(int gameRow, int gameCol, int directionOne, int directionTwo) {
+		String possibleMove = "[*]", emptySlot = "[ ]";
 		String currentTeam = chessboard[gameRow][gameCol].getTeam();
 		
-		for (int i = 0; i < maxMovableSlots; i++) {
-			if(i == 0) {
-				// Validates that the potential slot stays inside of the board
-				if (gameRow + directionTwo > chessboard.length -1 || gameCol  - directionOne < 0)	
-					continue;
-				// 2Ux1L
-				if(chessboard[gameRow + directionTwo][gameCol - directionOne].getPiece().equals(emptySlot)) {
-					chessboard[gameRow +directionTwo][gameCol - directionOne].setPiece(possibleMove);
-				}
-				else{
-					markTarget(gameRow+directionTwo, gameCol-directionOne, currentTeam);
-					break;
-				}
-			}
-			else if(i == 1) {
-				// Validates that the potential slot stays inside of the board
-				if (gameRow + directionTwo > chessboard.length -1 || gameCol  + directionOne > chessboard.length -1)	
-					continue;
-				// 2Ux1R
-				if(chessboard[gameRow + directionTwo][gameCol + directionOne].getPiece().equals(emptySlot)) {
-					chessboard[gameRow + directionTwo][gameCol + directionOne].setPiece(possibleMove);
-				}
-				else{
-					markTarget(gameRow+directionTwo, gameCol+directionOne, currentTeam);
-					break;
-				}
-			}
-			else if(i == 2) {
-				// Validates that the potential slot stays inside of the board
-				if (gameRow - directionTwo < 0 || gameCol  - directionOne < 0)	
-					continue;
-				// 2Dx1L
-				if(chessboard[gameRow - directionTwo][gameCol - directionOne].getPiece().equals(emptySlot)) {
-					chessboard[gameRow - directionTwo][gameCol - directionOne].setPiece(possibleMove);
-				}
-				else{
-					markTarget(gameRow-directionTwo, gameCol-directionOne, currentTeam);
-					break;
-				}
-			}
-			else if(i == 3) {
-				// Validates that the potential slot stays inside of the board
-				if (gameRow - directionTwo < 0 || gameCol  + directionOne > chessboard.length - 1)	
-					continue;
-				// 2Dx1R
-				if(chessboard[gameRow - directionTwo][gameCol + directionOne].getPiece().equals(emptySlot)) {
-					chessboard[gameRow - directionTwo][gameCol + directionOne].setPiece(possibleMove);
-				}
-				else{
-					markTarget(gameRow-directionTwo, gameCol+directionOne, currentTeam);
-					break;
-				}
-			}
-			else if(i == 4) {
-				// Validates that the potential slot stays inside of the board
-				if (gameRow + directionOne > chessboard.length - 1 || gameCol - directionTwo < 0)	
-					continue;
-				// 1Ux2L
-				if(chessboard[gameRow + directionOne][gameCol - directionTwo].getPiece().equals(emptySlot)) {
-					chessboard[gameRow + directionOne][gameCol - directionTwo].setPiece(possibleMove);
-				}
-				else{
-					markTarget(gameRow+directionOne, gameCol-directionTwo, currentTeam);
-					break;
-				}
-			}
-			else if(i == 5) {
-				// Validates that the potential slot stays inside of the board
-				if (gameRow + directionOne > chessboard.length - 1 || gameCol + directionTwo > chessboard.length - 1)	
-					continue;
-				// 1Ux2R
-				if(chessboard[gameRow + directionOne][gameCol + directionTwo].getPiece().equals(emptySlot)) {
-					chessboard[gameRow + directionOne][gameCol + directionTwo].setPiece(possibleMove);
-				}
-				else{
-					markTarget(gameRow+directionOne, gameCol+directionTwo, currentTeam);
-					break;
-				} 
-			}
-			else if(i == 6) {
-				// Validates that the potential slot stays inside of the board
-				if (gameRow - directionOne < 0 || gameCol - directionTwo < 0)	
-					continue;
-				// 1Dx2L
-				if(chessboard[gameRow - directionOne][gameCol - directionTwo].getPiece().equals(emptySlot)) {
-					chessboard[gameRow - directionOne][gameCol - directionTwo].setPiece(possibleMove);
-				}
-				else{
-					markTarget(gameRow-directionOne, gameCol-directionTwo, currentTeam);
-					break;
-				} 
-			}
-			else if(i == 7) {
-				// Validates that the potential slot stays inside of the board
-				if (gameRow - directionOne < 0 || gameCol + directionTwo > chessboard.length - 1)	
-					continue;
-				// 1Dx2R
-				if(chessboard[gameRow - directionOne][gameCol + directionTwo].getPiece().equals(emptySlot)) {
-					chessboard[gameRow - directionOne][gameCol + directionTwo].setPiece(possibleMove);
-				}
-				else{
-					markTarget(gameRow-directionOne, gameCol+directionTwo, currentTeam);
-					break;
-				}
-			}
+		int sum1 = gameRow + directionOne;
+		int sum2 = gameCol + directionTwo;
+		System.out.println("DirectionOne: "+directionOne+" DirectionTwo: "+directionTwo);
+		System.out.println("SumOne: "+sum1+" SumTwo: "+sum2);
+		// Validates that the potential slot stays inside of the board
+		if(directionOne < 0) {
+			if (gameRow + directionOne < 0)	
+				return;
+		}else {
+			if (gameRow + directionOne > chessboard.length - 1)	
+				return;
 		}
-	}
-	
-	/*
-	 * Checks to see if the move the user selected is a valid move in the chess board
-	 */
-	public static boolean validateMove(String userInput) {
-		if(userInput.length() != 2) {
-			return false;
+		
+		if(directionTwo < 0) {
+			if (gameCol + directionTwo < 0)	
+				return;
+		}else {
+			if (gameCol + directionTwo > chessboard.length - 1)	
+				return;
 		}
-		else if(userInput.charAt(0) < 'A' || userInput.charAt(0) > 'H' ) {
-			System.out.println("invalid column");
-		}
-		else if(userInput.charAt(1) < '1' || userInput.charAt(1) > '8' ) {
-			System.out.println("invalid row");
-		}
-		return true;
+		System.out.println("\nPassed the IFs\n");
+		// Checks to see if the 'potentialMove' is an empty slot or if its taken
+		if(chessboard[gameRow + directionOne][gameCol + directionTwo].getPiece().equals(emptySlot)) 
+			chessboard[gameRow + directionOne][gameCol + directionTwo].setPiece(possibleMove);
+		else
+			markTarget(gameRow+directionOne, gameCol+directionTwo, currentTeam);
 	}
 	
 	/*
@@ -578,8 +484,7 @@ public class Chess {
 	public static int generateBoard(String teamSelected, ActionListener buttonListener) {
 		String[] kingRow = {"[R]", "[k]", "[B]", "[Q]", "[K]", "[B]", "[k]", "[R]"};
 		String[] pawnRow = {"[P]", "[P]", "[P]", "[P]", "[P]", "[P]", "[P]", "[P]"};
-		String teamWhite = "WHITE";
-		String teamBlack = "BLACK";
+		String teamWhite = "WHITE", teamBlack = "BLACK";
 		
 		// Generates an empty chess board
 		for(int i = 0; i < chessboard.length; i++) {
@@ -587,82 +492,54 @@ public class Chess {
 				chessboard[i][j] = new ChessInfo();
 				chessboard[i][j].setPiece("[ ]");
 				
-				buttons[i][j] = new JButton("[ ]");
+				buttons[i][j] = new JButton();
 		        buttons[i][j].addActionListener(buttonListener);
 		        buttons[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
 		        frame.add(buttons[i][j]); 
 			}
 		}
 		
-		// Checks to see if correct team was selected
-		if (!teamSelected.equals(teamWhite) && !teamSelected.equals(teamBlack)) {
-			System.out.println("WRONG");
-			return 1;
-		}
 		// Populates chess board with all playable pieces
-		else {
-			for(int i = 0; i < chessboard.length; i++) {
-				// Populate king row and assign proper team: "WHITE"
-				chessboard[0][i].setPiece(kingRow[i]);
-				chessboard[0][i].setTeam(teamWhite);
-				
-				// Populate pawn row and assign proper team: "WHITE"
-				chessboard[1][i].setPiece(pawnRow[i]);
-				chessboard[1][i].setTeam(teamWhite);
-				
-				// Populate king row and assign proper team: "BLACK"
-				chessboard[chessboard.length-1][i].setPiece(kingRow[i]);
-				chessboard[chessboard.length-1][i].setTeam(teamBlack);
-				
-				// Populate pawn row and assign proper team: "BLACK"
-				chessboard[chessboard.length-2][i].setPiece(pawnRow[i]);
-				chessboard[chessboard.length-2][i].setTeam(teamBlack);
-			}
+		for(int i = 0; i < chessboard.length; i++) {
+			// Populate king row and assign proper team: "WHITE"
+			chessboard[0][i].setPiece(kingRow[i]);
+			chessboard[0][i].setTeam(teamWhite);
 			
+			// Populate pawn row and assign proper team: "WHITE"
+			chessboard[1][i].setPiece(pawnRow[i]);
+			chessboard[1][i].setTeam(teamWhite);
+			
+			// Populate king row and assign proper team: "BLACK"
+			chessboard[chessboard.length-1][i].setPiece(kingRow[i]);
+			chessboard[chessboard.length-1][i].setTeam(teamBlack);
+			
+			// Populate pawn row and assign proper team: "BLACK"
+			chessboard[chessboard.length-2][i].setPiece(pawnRow[i]);
+			chessboard[chessboard.length-2][i].setTeam(teamBlack);
 		}
-		
 		return 0;
 	}
 	
 	
 	/*
-	 * Prints out the chess board to console
+	 * Updates the GUI board
 	 */
 	public static void updateBoard(String teamSelected) {
-		String teamWhite = "WHITE";
-		String teamBlack = "BLACK";
+		String teamWhite = "WHITE", teamBlack = "BLACK";
 		
-		// Prints from "WHITE" POV
-		if (teamSelected.equals(teamWhite)) {
-			for(int i = chessboard.length -1; i >= 0; i--) {
-				for (int j = 0; j < chessboard[0].length; j++) {
-					buttons[i][j].setText(chessboard[i][j].getPiece());
-					if (chessboard[i][j].getPiece().contains("*")) 
-						buttons[i][j].setForeground(Color.green);
-					else if (chessboard[i][j].getTeam() == null)
-						buttons[i][j].setForeground(Color.white);
-					else if(chessboard[i][j].getTeam().equals(teamWhite))
-						buttons[i][j].setForeground(Color.LIGHT_GRAY);
-					else if(chessboard[i][j].getTeam().equals(teamBlack))
-						buttons[i][j].setForeground(Color.BLACK);
-				}
-			}	
-		}
-		// Prints from "BLACK" POV
-		else {
-			for(int i = 0; i < chessboard.length; i++) {
-				for (int j = chessboard[0].length -1; j >=0; j--) {
-					buttons[i][j].setText(chessboard[i][j].getPiece());
-					if (chessboard[i][j].getPiece().contains("*")) 
-						buttons[i][j].setForeground(Color.green);
-					else if (chessboard[i][j].getTeam() == null)
-						buttons[i][j].setForeground(Color.white);
-					else if(chessboard[i][j].getTeam().equals(teamWhite))
-						buttons[i][j].setForeground(Color.LIGHT_GRAY);
-					else if(chessboard[i][j].getTeam().equals(teamBlack))
-						buttons[i][j].setForeground(Color.BLACK);
-				}
+		for(int i = chessboard.length -1; i >= 0; i--) {
+			for (int j = 0; j < chessboard[0].length; j++) {
+				buttons[i][j].setText(chessboard[i][j].getPiece());
+				if (chessboard[i][j].getPiece().contains("*")||chessboard[i][j].getPiece().contains("{")) 
+					buttons[i][j].setForeground(Color.green);
+				else if (chessboard[i][j].getTeam() == null)
+					buttons[i][j].setForeground(Color.white);
+				else if(chessboard[i][j].getTeam().equals(teamWhite))
+					buttons[i][j].setForeground(Color.GRAY);
+				else if(chessboard[i][j].getTeam().equals(teamBlack))
+					buttons[i][j].setForeground(Color.BLACK);
 			}
-		}
+		}	
+		
 	}
 }
