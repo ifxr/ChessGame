@@ -1,3 +1,4 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -39,10 +40,11 @@ public class Game extends JPanel{
 	
 	static PieceInfo[][] chessboard = new PieceInfo[8][8];
 	static JButton[][] buttons;
+	JPanel gamePanel;
 	
 	static GridBagConstraints gbc = new GridBagConstraints();
 	static GridBagLayout gbl = new GridBagLayout();
-	static JLabel output = new JLabel();
+	static JLabel output = new JLabel("Team: WHITE");
 	
 	static int count = 0;
 	static int[] pieceCoords = {-1,-1};
@@ -50,20 +52,21 @@ public class Game extends JPanel{
 	
 	
 	Game(){
-		this.setLayout(gbl);
-		//this.add(output); 	 
-	    this.setSize(500,500);
-	    this.setLocation(100, 0);
-	    this.setBackground(Color.WHITE);
+		gamePanel = new JPanel();
+		
+		gamePanel.setLayout(gbl);	 
+	    gamePanel.setSize(500,500);
+	    gamePanel.setLocation(100, 0);
+	    gamePanel.setBackground(Color.WHITE);
 	    
-	    
-	    String startingTeam = "WHITE";
-	    
-	    generateBoard(startingTeam); 
-	    updateBoard(startingTeam);
-	    
-	   // panel.setVisible(true); 
-	    
+	    this.setLayout(new BorderLayout());
+		this.add(gamePanel, BorderLayout.CENTER);
+		this.add(output, BorderLayout.SOUTH);
+		
+		String startingTeam = "WHITE";
+
+		generateBoard(startingTeam); 
+		updateBoard(startingTeam);	    
 	 }
 	
 	private static class ButtonListener implements ActionListener{
@@ -493,7 +496,7 @@ public class Game extends JPanel{
 		        gbc.gridheight = 1;
 		        gbc.gridwidth = 1;
 		        gbl.setConstraints(buttons[i][j], gbc);
-		        this.add(buttons[i][j]); 
+		        gamePanel.add(buttons[i][j]); 
 		        
 		        buttons[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
 		        

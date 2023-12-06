@@ -1,3 +1,4 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -24,15 +25,15 @@ public class GameFrame extends JFrame implements ActionListener{
 		
 		this.setTitle("Chess");
 		this.setSize(600,500); 
-		this.setLayout(null); 	 
+		this.setLayout(new BorderLayout()); 	 
 	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    
 	    resetButtonSetup();
 	    
 	    game = new Game();
 	    
-	    this.add(resetButton);
-	    this.add(game);
+	    this.add(resetButton, BorderLayout.SOUTH);
+	    this.add(game, BorderLayout.CENTER);
 	    this.setVisible(true); 
 	}
 
