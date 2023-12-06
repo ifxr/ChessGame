@@ -1,15 +1,19 @@
 import java.awt.Color;
-import java.awt.GridLayout;
-import java.awt.event.*;
-import java.util.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
-class ChessInfo{	
+class PieceInfo{	
 	String team;				// Represents what team the player will be in
 	String piece;			// Represents the piece the player will play in '[*]' form
 	
-	public ChessInfo() {
+	public PieceInfo() {
 		team = null;
 		piece = null;
 		
@@ -31,42 +35,55 @@ class ChessInfo{
 	}
 }
 
-public class Chess {
-	static ChessInfo[][] chessboard = new ChessInfo[8][8];
+public class Game extends JPanel{
+	
+	static PieceInfo[][] chessboard = new PieceInfo[8][8];
 	static JButton[][] buttons;
-	static JFrame frame;
+	
+	static GridBagConstraints gbc = new GridBagConstraints();
+	static GridBagLayout gbl = new GridBagLayout();
 	static JLabel output = new JLabel();
+	
 	static int count = 0;
 	static int[] pieceCoords = {-1,-1};
 	static int[] nextMove = {-1, -1};
 	
-	public static void main(String[] args) {
-		String[] team = {"WHITE", "BLACK"};
-		output.setText("Team: " + team[0]);
-		// an array of JButtons
-		frame =new JFrame("Chess"); 
-		buttons = new JButton[8][8];
-		
-		ActionListener buttonListener = new ActionListener() {
+	
+	Game(){
+		this.setLayout(gbl);
+		//this.add(output); 	 
+	    this.setSize(500,500);
+	    this.setLocation(100, 0);
+	    this.setBackground(Color.WHITE);
+	    
+	    
+	    String startingTeam = "WHITE";
+	    
+	    generateBoard(startingTeam); 
+	    updateBoard(startingTeam);
+	    
+	   // panel.setVisible(true); 
+	    
+	 }
+	
+	private static class ButtonListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			int[] coords = new int[2];
+    		coords = findButton(e.getSource());
+    		playGame(coords);
 			
-		    	@Override
-		    	public void actionPerformed(ActionEvent e) {
-		    		int[] coords = new int[2];
-		    		coords = findButton(e.getSource());
-		    		playGame(coords);
-		    	}
-		};
+		}
 		
-	    generateBoard(team[0], buttonListener); 
-	    updateBoard(team[0]);
-	    
-	    
-		frame.add(output); 	 
-	    frame.setSize(400,400);  
-	    frame.setLayout(new GridLayout(9, 9));  
-	    frame.setBackground(Color.BLACK);
-	    frame.setVisible(true); 
-	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	public static void enableGame(boolean flag) {
+		for(int i = 0; i < buttons.length; i++) {
+			for(int j = 0; j<  buttons[0].length; j++) {
+				buttons[i][j].setEnabled(flag);
+			}
+		}
 	}
 	
 	public static void playGame(int[] coords) {
@@ -88,12 +105,19 @@ public class Chess {
 				nextMove[i] = coords[i];
 			count++;
 			//System.out.println("Count: "+count+" Next Move: "+nextMove[0]+", "+nextMove[1]);
-			playMove(pieceCoords, nextMove);
+			int gameDecider = playMove(pieceCoords, nextMove);
+			if (gameDecider == 1) {
+				output.setText("WINNER: "+ teamSelected);
+				updateBoard(teamSelected);
+				enableGame(false);
+				return;
+			}
 		}
 		output.setText("Team: " + teamSelected);
 		updateBoard(teamSelected);
 		
 	}
+	
 	private static int[] findButton(Object c) {
 		int[] coords = new int[2];
         for (int x = 0; x < buttons.length; x++) {
@@ -116,12 +140,10 @@ public class Chess {
 		String possibleSlot = "[*]";
 		
 		// Coordinates for current selected piece
-		int currentCol = currentPiece[1];
-		int currentRow = currentPiece[0];
+		int currentCol = currentPiece[1], currentRow = currentPiece[0];
 		
 		// Coordinates for possible move
-		int possibleCol = possibleDestination[1];
-		int possibleRow = possibleDestination[0];
+		int possibleCol = possibleDestination[1], possibleRow = possibleDestination[0];
 		
 		//reset coords
 		for(int i = 0; i<pieceCoords.length; i++) {
@@ -137,6 +159,7 @@ public class Chess {
 			chessboard[currentRow][currentCol].setTeam(null);
 		}
 		else if(chessboard[possibleRow][possibleCol].getPiece().contains("{")) {
+			
 			// If 'King' gets eaten, game ends
 			if(chessboard[possibleRow][possibleCol].getPiece().contains("K"))
 				return 1;
@@ -446,23 +469,39 @@ public class Chess {
 	/*
 	 * Populates the chess board with the starting position of every piece
 	 */
-	public static int generateBoard(String teamSelected, ActionListener buttonListener) {
+	public int generateBoard(String teamSelected) {
 		String[] kingRow = {"[R]", "[k]", "[B]", "[Q]", "[K]", "[B]", "[k]", "[R]"};
 		String[] pawnRow = {"[P]", "[P]", "[P]", "[P]", "[P]", "[P]", "[P]", "[P]"};
 		String teamWhite = "WHITE", teamBlack = "BLACK";
+		buttons = new JButton[8][8];
+		
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+		gbc.fill = GridBagConstraints.BOTH;
 		
 		// Generates an empty chess board
 		for(int i = 0; i < chessboard.length; i++) {
 			for(int j = 0; j < chessboard[0].length; j++) {
-				chessboard[i][j] = new ChessInfo();
+				chessboard[i][j] = new PieceInfo();
 				chessboard[i][j].setPiece("[ ]");
 				
 				buttons[i][j] = new JButton();
-		        buttons[i][j].addActionListener(buttonListener);
+		        buttons[i][j].addActionListener(new ButtonListener());
+		        buttons[i][j].setText(chessboard[i][j].getPiece());
+		        gbc.gridx = j; 
+		        gbc.gridy = i;
+		        gbc.gridheight = 1;
+		        gbc.gridwidth = 1;
+		        gbl.setConstraints(buttons[i][j], gbc);
+		        this.add(buttons[i][j]); 
+		        
 		        buttons[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
-		        frame.add(buttons[i][j]); 
+		        
 			}
 		}
+		
+		gbc.gridx = buttons.length; 
+        gbc.gridy = buttons.length;
 		
 		// Populates chess board with all playable pieces
 		for(int i = 0; i < chessboard.length; i++) {
