@@ -41,10 +41,17 @@ public class Game extends JPanel{
 	static PieceInfo[][] chessboard = new PieceInfo[8][8];
 	static JButton[][] buttons;
 	JPanel gamePanel;
+	static JPanel scoreboardPanel;
 	
 	static GridBagConstraints gbc = new GridBagConstraints();
 	static GridBagLayout gbl = new GridBagLayout();
-	static JLabel output = new JLabel("Team: WHITE");
+	
+	static JLabel currentTeamLabel = new JLabel("Team: WHITE");
+	static JLabel eatenByWhiteLbl = new JLabel();
+	static JLabel eatenByBlackLbl = new JLabel();
+	static StringBuilder eatenByWhiteStr = new StringBuilder("");
+	static StringBuilder eatenByBlackStr = new StringBuilder("");
+	
 	
 	static int count = 0;
 	static int[] pieceCoords = {-1,-1};
@@ -53,15 +60,21 @@ public class Game extends JPanel{
 	
 	Game(){
 		gamePanel = new JPanel();
+		scoreboardPanel = new JPanel();
 		
 		gamePanel.setLayout(gbl);	 
 	    gamePanel.setSize(500,500);
 	    gamePanel.setLocation(100, 0);
 	    gamePanel.setBackground(Color.WHITE);
 	    
+	    scoreboardPanel.setLayout(new BorderLayout());
+	    scoreboardPanel.add(currentTeamLabel, BorderLayout.WEST);
+	    //scoreboardPanel.add(eatenByWhiteLbl, BorderLayout.EAST);
+	    //scoreboardPanel.add(eatenByBlackLbl, BorderLayout.EAST);
+	    
 	    this.setLayout(new BorderLayout());
 		this.add(gamePanel, BorderLayout.CENTER);
-		this.add(output, BorderLayout.SOUTH);
+		this.add(scoreboardPanel, BorderLayout.SOUTH);
 		
 		String startingTeam = "WHITE";
 
@@ -77,7 +90,6 @@ public class Game extends JPanel{
 			int[] coords = new int[2];
     		coords = findButton(e.getSource());
     		playGame(coords);
-			
 		}
 		
 	}
@@ -90,8 +102,6 @@ public class Game extends JPanel{
 	}
 	
 	public static void playGame(int[] coords) {
-		int x = coords[0];
-		int y = coords[1];
 		String[] team = {"WHITE", "BLACK"};
 		String teamSelected = team[count%2];
 		
@@ -106,17 +116,26 @@ public class Game extends JPanel{
 		else if (nextMove[0] == -1) {
 			for(int i = 0; i < nextMove.length; i++)
 				nextMove[i] = coords[i];
+			
 			count++;
 			//System.out.println("Count: "+count+" Next Move: "+nextMove[0]+", "+nextMove[1]);
+			
 			int gameDecider = playMove(pieceCoords, nextMove);
 			if (gameDecider == 1) {
-				output.setText("WINNER: "+ teamSelected);
+				currentTeamLabel.setText("WINNER: "+ teamSelected);
 				updateBoard(teamSelected);
 				enableGame(false);
 				return;
+			}else if(gameDecider == 2) {
+				
+				count--;
+				updateBoard(teamSelected);
+				return;
 			}
+			
 		}
-		output.setText("Team: " + teamSelected);
+		teamSelected = team[count%2];
+		currentTeamLabel.setText("Team: " + teamSelected);
 		updateBoard(teamSelected);
 		
 	}
@@ -141,6 +160,8 @@ public class Game extends JPanel{
 	public static int playMove(int[] currentPiece, int[] possibleDestination) {
 		String emptySlot = "[ ]";
 		String possibleSlot = "[*]";
+		String teamWhite = "WHITE";
+		int returnNum = 0;
 		
 		// Coordinates for current selected piece
 		int currentCol = currentPiece[1], currentRow = currentPiece[0];
@@ -154,6 +175,7 @@ public class Game extends JPanel{
 			nextMove[i] = -1;
 		}
 		
+		// checks to see if selected slot is one where the original piece can go to
 		if(chessboard[possibleRow][possibleCol].getPiece().equals(possibleSlot)) {
 			chessboard[possibleRow][possibleCol].setPiece(chessboard[currentRow][currentCol].getPiece());
 			chessboard[possibleRow][possibleCol].setTeam(chessboard[currentRow][currentCol].getTeam());
@@ -161,17 +183,27 @@ public class Game extends JPanel{
 			chessboard[currentRow][currentCol].setPiece(emptySlot);
 			chessboard[currentRow][currentCol].setTeam(null);
 		}
+		// checks to see if the selected piece is indeed a piece that can be eaten
 		else if(chessboard[possibleRow][possibleCol].getPiece().contains("{")) {
 			
 			// If 'King' gets eaten, game ends
 			if(chessboard[possibleRow][possibleCol].getPiece().contains("K"))
 				return 1;
 			
+			if(chessboard[possibleRow][possibleCol].getTeam().equals(teamWhite)) 
+				eatenByBlackStr.append(chessboard[possibleRow][possibleCol].getPiece());
+			else
+				eatenByWhiteStr.append(chessboard[possibleRow][possibleCol].getPiece());
+			
 			chessboard[possibleRow][possibleCol].setPiece(chessboard[currentRow][currentCol].getPiece());
 			chessboard[possibleRow][possibleCol].setTeam(chessboard[currentRow][currentCol].getTeam());
 			
 			chessboard[currentRow][currentCol].setPiece(emptySlot);
 			chessboard[currentRow][currentCol].setTeam(null);
+		}
+		// return 2 means that the piece is not a valid slot
+		else {
+			returnNum =  2;
 		}
 		// Removes the "Potential" moves from the board
 		for(int i = 0; i < chessboard.length; i++) {
@@ -186,7 +218,10 @@ public class Game extends JPanel{
 			}
 		}
 		
-		return 0;
+		if (returnNum == 2) 
+			return 2;
+		else
+			return 0;
 		
 	}
 	
@@ -287,7 +322,6 @@ public class Game extends JPanel{
 		String emptySlot = "[ ]";
 		String teamWhite = "WHITE";
 		String currentTeam = chessboard[gameRow][gameCol].getTeam();
-		int tempPosition = 0;
 		
 		if (currentTeam.equals(teamWhite)) { 
 			if(gameRow == 1){
@@ -533,6 +567,17 @@ public class Game extends JPanel{
 	 */
 	public static void updateBoard(String teamSelected) {
 		String teamWhite = "WHITE", teamBlack = "BLACK";
+		
+		if (teamSelected.equals(teamWhite)) {
+			scoreboardPanel.remove(eatenByBlackLbl);
+			eatenByWhiteLbl.setText(eatenByWhiteStr.toString());
+			scoreboardPanel.add(eatenByWhiteLbl, BorderLayout.EAST);
+		}
+		else {
+			scoreboardPanel.remove(eatenByWhiteLbl);
+			eatenByBlackLbl.setText(eatenByBlackStr.toString());
+			scoreboardPanel.add(eatenByBlackLbl, BorderLayout.EAST);
+		}
 		
 		for(int i = chessboard.length -1; i >= 0; i--) {
 			for (int j = 0; j < chessboard[0].length; j++) {
