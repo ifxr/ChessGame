@@ -18,11 +18,6 @@ public class GameFrame extends JFrame implements ActionListener{
 	Game game;
 	
 	GameFrame(){
-		//String[] team = {"WHITE", "BLACK"};
-		//output.setText("Team: " + team[0]);
-		// an array of JButtons
-		//new JFrame("Chess"); 
-		
 		this.setTitle("Chess");
 		this.setSize(600,500); 
 		this.setLayout(new BorderLayout()); 	 

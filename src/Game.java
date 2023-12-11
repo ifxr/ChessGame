@@ -63,14 +63,15 @@ public class Game extends JPanel{
 		scoreboardPanel = new JPanel();
 		
 		gamePanel.setLayout(gbl);	 
-	    gamePanel.setSize(500,500);
+	    gamePanel.setSize(450,450);
 	    gamePanel.setLocation(100, 0);
 	    gamePanel.setBackground(Color.WHITE);
 	    
 	    scoreboardPanel.setLayout(new BorderLayout());
 	    scoreboardPanel.add(currentTeamLabel, BorderLayout.WEST);
-	    //scoreboardPanel.add(eatenByWhiteLbl, BorderLayout.EAST);
-	    //scoreboardPanel.add(eatenByBlackLbl, BorderLayout.EAST);
+	    
+	    eatenByWhiteStr.append("Eaten: ");
+	    eatenByBlackStr.append("Eaten: ");
 	    
 	    this.setLayout(new BorderLayout());
 		this.add(gamePanel, BorderLayout.CENTER);
@@ -105,34 +106,27 @@ public class Game extends JPanel{
 		String[] team = {"WHITE", "BLACK"};
 		String teamSelected = team[count%2];
 		
-		System.out.println(teamSelected);
-		
 		if(pieceCoords[0] == -1) {
 			for(int i = 0; i < pieceCoords.length; i++)
 				pieceCoords[i] = coords[i];
-			//System.out.println("Count: "+count+" Piece Coords:"+pieceCoords[0]+", "+pieceCoords[1]);
 			potentialMove(pieceCoords, teamSelected);
 		}
 		else if (nextMove[0] == -1) {
 			for(int i = 0; i < nextMove.length; i++)
 				nextMove[i] = coords[i];
 			
-			count++;
-			//System.out.println("Count: "+count+" Next Move: "+nextMove[0]+", "+nextMove[1]);
-			
 			int gameDecider = playMove(pieceCoords, nextMove);
+			
 			if (gameDecider == 1) {
 				currentTeamLabel.setText("WINNER: "+ teamSelected);
 				updateBoard(teamSelected);
 				enableGame(false);
 				return;
 			}else if(gameDecider == 2) {
-				
-				count--;
 				updateBoard(teamSelected);
 				return;
 			}
-			
+			count++;	
 		}
 		teamSelected = team[count%2];
 		currentTeamLabel.setText("Team: " + teamSelected);
@@ -161,7 +155,7 @@ public class Game extends JPanel{
 		String emptySlot = "[ ]";
 		String possibleSlot = "[*]";
 		String teamWhite = "WHITE";
-		int returnNum = 0;
+		int errorCode = 0;
 		
 		// Coordinates for current selected piece
 		int currentCol = currentPiece[1], currentRow = currentPiece[0];
@@ -188,7 +182,7 @@ public class Game extends JPanel{
 			
 			// If 'King' gets eaten, game ends
 			if(chessboard[possibleRow][possibleCol].getPiece().contains("K"))
-				return 1;
+				errorCode = 1;
 			
 			if(chessboard[possibleRow][possibleCol].getTeam().equals(teamWhite)) 
 				eatenByBlackStr.append(chessboard[possibleRow][possibleCol].getPiece());
@@ -203,7 +197,7 @@ public class Game extends JPanel{
 		}
 		// return 2 means that the piece is not a valid slot
 		else {
-			returnNum =  2;
+			errorCode =  2;
 		}
 		// Removes the "Potential" moves from the board
 		for(int i = 0; i < chessboard.length; i++) {
@@ -218,7 +212,9 @@ public class Game extends JPanel{
 			}
 		}
 		
-		if (returnNum == 2) 
+		if (errorCode == 1)
+			return 1;
+		else if (errorCode == 2) 
 			return 2;
 		else
 			return 0;
@@ -248,7 +244,7 @@ public class Game extends JPanel{
 		
 		// "Pawn" piece movement
 		if (chessboard[gameRow][gameCol].getPiece().equals("[P]")){
-			pawnMovement(gameRow, gameCol, pawnMovableSlots);
+			pawnMovement(gameRow, gameCol);
 		}
 		// "Rook" piece movement
 		else if(chessboard[gameRow][gameCol].getPiece().equals("[R]")) {
@@ -317,60 +313,64 @@ public class Game extends JPanel{
 	 * Pawn movement allows it to move in 1 directions:
 	 * It has the option to move 2 square the first move but after that it is 1 square per turn
 	 */
-	public static void pawnMovement(int gameRow, int gameCol, int maxMovableSlots) {
-		String possibleMove = "[*]";
-		String emptySlot = "[ ]";
+	public static void pawnMovement(int gameRow, int gameCol) {
+		String possibleMove = "[*]", emptySlot = "[ ]";
 		String teamWhite = "WHITE";
 		String currentTeam = chessboard[gameRow][gameCol].getTeam();
+		int steps = 1;
+		int direction = 1;
 		
-		if (currentTeam.equals(teamWhite)) { 
-			if(gameRow == 1){
-				for(int i = 1; i <= maxMovableSlots; i++) {
-					if(chessboard[gameRow+ i][gameCol].getPiece().equals(emptySlot)) 
-						chessboard[gameRow+ i][gameCol].setPiece(possibleMove);
-				}
-			}
-			else {
-				if(chessboard[gameRow+1][gameCol].getPiece().equals(emptySlot)) 
-					chessboard[gameRow+1][gameCol].setPiece(possibleMove);
-			}
-			// Checks right Diagonal
-			if (gameRow + 1 > chessboard.length - 1 || gameCol + 1 > chessboard.length -1)
-				return;
-			else 
-				markTarget(gameRow+1, gameCol+1, currentTeam);
-			// Checks left Diagonal
-			if (gameRow + 1 > chessboard.length - 1 || gameCol - 1 <0)
-				return;
-			else
-				markTarget(gameRow+ 1, gameCol-1, currentTeam);
+		if(gameRow == 6 || gameRow == 1)
+			steps = 2;
+		
+		// Marks potential slots for pawns to move
+		for(int i = 1; i <= steps; i++) {
+			int temp = i;
 			
+			if (!currentTeam.equals(teamWhite))
+				temp = -i;
+			
+			if(chessboard[gameRow + temp][gameCol].getPiece().equals(emptySlot)) {
+				chessboard[gameRow + temp][gameCol].setPiece(possibleMove);
+				buttons[gameRow + temp][gameCol].setText(possibleMove);
+			}
 		}
-		else {
-			if(gameRow == 6){
-				for(int i = 1; i <= maxMovableSlots; i++) {
-					if(chessboard[gameRow- i][gameCol].getPiece().equals(emptySlot)) {
-						chessboard[gameRow- i][gameCol].setPiece(possibleMove);
-						
-					}
+		System.out.println("TEST");
+		// Checks diagonals to see if it can eat opposing pieces
+		for(int i = -1; i <= 2; i=i+2) {
+			int temp = i;
+			
+			if(currentTeam.equals(teamWhite)) {
+				// Checks right Diagonal
+				if(temp == 1) {
+					if (gameRow + temp > chessboard.length - 1 || gameCol + temp > chessboard.length -1)
+						continue;
+					else 
+						markTarget(gameRow+temp, gameCol+temp, currentTeam);
+				}
+				else if(temp == -1){
+					// Checks left Diagonal
+					if (gameRow - temp > chessboard.length - 1 || gameCol + temp <0)
+						continue;
+					else
+						markTarget(gameRow-temp, gameCol+temp, currentTeam);
 				}
 			}
 			else {
-				if(chessboard[gameRow-1][gameCol].getPiece().equals(emptySlot)) {
-					chessboard[gameRow-1][gameCol].setPiece(possibleMove);
+				if(temp == 1) {
+					if (gameRow - temp < 0 || gameCol + temp > chessboard.length -1)
+						continue;
+					else
+						markTarget(gameRow-temp, gameCol+temp, currentTeam);
 				}
-				
+				else if(temp == -1) {
+					// Checks left Diagonal
+					if (gameRow + temp < 0 || gameCol + temp <0)
+						continue;
+					else
+						markTarget(gameRow+temp, gameCol+temp, currentTeam);
+				}
 			}
-			// Checks right Diagonal
-			if (gameRow - 1 < 0 || gameCol + 1 > chessboard.length -1)
-				return;
-			else
-				markTarget(gameRow-1, gameCol+1, currentTeam);
-			// Checks left Diagonal
-			if (gameRow - 1 < 0 || gameCol - 1 <0)
-				return;
-			else
-				markTarget(gameRow- 1, gameCol-1, currentTeam);
 		}
 	}
 	
@@ -567,7 +567,6 @@ public class Game extends JPanel{
 	 */
 	public static void updateBoard(String teamSelected) {
 		String teamWhite = "WHITE", teamBlack = "BLACK";
-		
 		if (teamSelected.equals(teamWhite)) {
 			scoreboardPanel.remove(eatenByBlackLbl);
 			eatenByWhiteLbl.setText(eatenByWhiteStr.toString());
@@ -578,6 +577,7 @@ public class Game extends JPanel{
 			eatenByBlackLbl.setText(eatenByBlackStr.toString());
 			scoreboardPanel.add(eatenByBlackLbl, BorderLayout.EAST);
 		}
+		
 		
 		for(int i = chessboard.length -1; i >= 0; i--) {
 			for (int j = 0; j < chessboard[0].length; j++) {
@@ -592,6 +592,7 @@ public class Game extends JPanel{
 					buttons[i][j].setForeground(Color.BLACK);
 			}
 		}	
+		
 		
 	}
 }
