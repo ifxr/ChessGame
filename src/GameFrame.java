@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -10,12 +11,19 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 public class GameFrame extends JFrame implements ActionListener{
+	CardLayout cardLayout;
+	JPanel container;
+	
 	GridBagLayout gbl = new GridBagLayout();
 	JButton resetButton;
+	
 	Game game;
+	MenuPanel menu;
+	
 	
 	GameFrame(){
 		this.setTitle("Chess");
@@ -25,10 +33,21 @@ public class GameFrame extends JFrame implements ActionListener{
 	    
 	    resetButtonSetup();
 	    
+	    cardLayout = new CardLayout();
+	    container = new JPanel(cardLayout);
+	    
+	    menu = new MenuPanel(cardLayout);
 	    game = new Game();
 	    
+	    container.add(menu, "menu");
+	    container.add(game, "game");
+	    
+	    cardLayout.show(container, "menu");
+	    this.add(container, BorderLayout.CENTER);
+	    
 	    this.add(resetButton, BorderLayout.SOUTH);
-	    this.add(game, BorderLayout.CENTER);
+	    //this.add(game, BorderLayout.CENTER);
+	    //this.add(menu, BorderLayout.CENTER);
 	    this.setVisible(true); 
 	}
 
@@ -46,9 +65,10 @@ public class GameFrame extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		if(e.getSource() == resetButton) {
-			this.remove(game);
+			//container.remove(game);
 			game = new Game();
-			this.add(game);
+			container.add(game, "game");
+			cardLayout.show(container, "game");
 			SwingUtilities.updateComponentTreeUI(this);
 		}
 	}
