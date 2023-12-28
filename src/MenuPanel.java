@@ -11,45 +11,62 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+/**
+ * The 'MenuPanel' currently houses buttons which will allow you to select the type of game you want to generate. 
+ * Whether that be against an AI, a local game, or an online game.
+ */
 public class MenuPanel extends JPanel implements ActionListener{
 	
-	Game game;
-	JFrame frame;
-	CardLayout cardLayout;
+	Game game;					// instance of chess game
+	CardLayout cardLayout;		// manager for panels
 	
-	JPanel rowOnePanel;
+	// Used to organize buttons within the main menu panel
+	JPanel rowOnePanel;			
 	JPanel rowTwoPanel;
 	JPanel rowThreePanel;
 	
-	JButton pvpLocalBtn;
-	JButton pvpOnlineBtn;
-	JButton pveEasyBtn;
-	JButton pveMediumBtn;
-	JButton pveHardBtn;
+	JButton pvpLocalBtn;		// Generate a local chess game vs another player
+	JButton pvpOnlineBtn;		// Allows you to play online against another player
+	JButton pveEasyBtn;			// Allows you to play against an AI, easy difficulty
+	JButton pveMediumBtn;		// Allows you to play against an AI, medium difficulty
+	JButton pveHardBtn;			// Allows you to play against an AI, hard difficulty
 	
+	/**
+	 * 'MenuPanel' purpose is to create a panel and organize all the buttons that will be needed to access  certain features.
+	 * 
+	 * @param cardLayout: uses to change through the original panels created in the frame
+	 */
 	MenuPanel(CardLayout cardLayout){ 
 		this.cardLayout = cardLayout;
 		
+		// Panels used to mainly for layout organization
 		rowOnePanel = new JPanel();
 		rowTwoPanel = new JPanel();
 		rowThreePanel = new JPanel();
 		
+		// Setting each panel with a grid layout
 		rowOnePanel.setLayout(new GridLayout(1, 3));
 		rowTwoPanel.setLayout(new GridLayout(1, 3));
 		rowThreePanel.setLayout(new GridLayout(1, 3));
 		
+		// Menu Panel dimensions
 	    this.setSize(450,450);
 	    this.setLocation(100, 0);
 	    this.setBackground(Color.RED);
-	    
 	    this.setLayout(new GridLayout(3, 1));
+	    
+	    // Adds panels to main panel
 	    this.add(rowOnePanel);
 	    this.add(rowTwoPanel);
 	    this.add(rowThreePanel);
 	    
+	    // Generates all buttons
 	    buttonSetup();
 	}
 	
+	/**
+	 * The 'buttonSetup' method will create multiple buttons, add action listeners, and add them to the main panel
+	 */
 	public void buttonSetup() {
 		pvpLocalBtn = new JButton();
 		pvpLocalBtn.setText("Local");
