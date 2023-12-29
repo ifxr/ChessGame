@@ -8,12 +8,14 @@ import javax.swing.ImageIcon;
 public class PieceInfo{	
 	String team;				// Represents what team the playable piece will be in
 	String piece;				// Represents the piece the player will play in '[*]' form
-	String image;			// Will hold the image representing their corresponding piece
+	String image;				// Will hold the image representing their corresponding piece
+	int moveCount;				// Counter for the amount of times the specified pieces moves
 	
 	public PieceInfo() {
 		team = null;
 		piece = null;
 		image = null;
+		moveCount = 0;
 		
 	}
 	
@@ -64,4 +66,29 @@ public class PieceInfo{
 	public String getImage() {
 		return image;
 	}
+	
+	/**
+	 * Setter method used to set move counter
+	 * @return
+	 */
+	public void setMoveCount(int moveCount) {
+		this.moveCount = moveCount;
+	}
+	
+	/**
+	 * method that increments the counter everytime it is called
+	 * @return
+	 */
+	public void incrementCount() {
+		moveCount++;
+	}
+	
+	/**
+	 * Getter method used to retrieve counter
+	 * @return
+	 */
+	public int getMoveCount() {
+		return moveCount;
+	}
+	
 }

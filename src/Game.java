@@ -192,6 +192,7 @@ public class Game extends JPanel{
 				out[2] = straightMovement(gameRow, gameCol, 0, i, out[2]);
 				out[3] = straightMovement(gameRow, gameCol, 0, -i, out[3]);
 			}
+			castle(gameRow, gameCol, 0);
 			
 		}
 		// "Bishop" piece movement
@@ -241,6 +242,8 @@ public class Game extends JPanel{
 				out[6] = straightMovement(gameRow, gameCol, 0, i, out[6]);
 				out[7] = straightMovement(gameRow, gameCol, 0, -i, out[7]);
 			}
+			castle(gameRow, gameCol, 0);
+			castle(gameRow, gameCol, 1);
 		}
 		return 0;
 	}
@@ -253,6 +256,7 @@ public class Game extends JPanel{
 		String possibleSlot = "[*]";
 		String teamWhite = "WHITE";
 		int errorCode = 0;
+		int castle = 0;
 		
 		// Coordinates for current selected piece
 		int currentCol = currentPiece[1], currentRow = currentPiece[0];
@@ -270,29 +274,60 @@ public class Game extends JPanel{
 		if(chessboard[possibleRow][possibleCol].getPiece().equals(possibleSlot)) {
 			chessboard[possibleRow][possibleCol].setPiece(chessboard[currentRow][currentCol].getPiece());
 			chessboard[possibleRow][possibleCol].setTeam(chessboard[currentRow][currentCol].getTeam());
+			chessboard[possibleRow][possibleCol].setMoveCount(chessboard[currentRow][currentCol].getMoveCount());
 			
 			chessboard[currentRow][currentCol].setPiece(emptySlot);
 			chessboard[currentRow][currentCol].setTeam(null);
 			chessboard[currentRow][currentCol].setImageStr(null);
+			chessboard[currentRow][currentCol].setMoveCount(0);
+			
+			// Increases piece counter
+			chessboard[possibleRow][possibleCol].incrementCount();
+			System.out.println("Count: "+chessboard[possibleRow][possibleCol].getMoveCount());
 		}
 		// checks to see if the selected piece is indeed a piece that can be eaten
 		else if(chessboard[possibleRow][possibleCol].getPiece().contains("{")) {
-			
+			// Switches the rook and the king AKA castle
+			if(chessboard[currentRow][currentCol].getTeam().equals(
+					chessboard[possibleRow][currentCol].getTeam())) {
+				chessboard[currentRow][currentCol].setImageStr(null);
+				chessboard[possibleRow][possibleCol].setImageStr(null);
+				
+				String tempCur = chessboard[currentRow][currentCol].getPiece();		// Temporary string to save current piece
+				String tempPos = chessboard[possibleRow][possibleCol].getPiece();	// Temporary string to save possible piece
+				
+				chessboard[currentRow][currentCol].setPiece(tempPos);
+				chessboard[possibleRow][possibleCol].setPiece(tempCur);
+				
+				chessboard[currentRow][currentCol].incrementCount();
+				chessboard[possibleRow][possibleCol].incrementCount();
+				castle++;
+				
+				
+			}
 			// If 'King' gets eaten, game ends
-			if(chessboard[possibleRow][possibleCol].getPiece().contains("K"))
+			else if(chessboard[possibleRow][possibleCol].getPiece().contains("K"))
 				errorCode = 1;
 			
-			if(chessboard[possibleRow][possibleCol].getTeam().equals(teamWhite)) 
-				eatenByBlackStr.append(chessboard[possibleRow][possibleCol].getPiece());
-			else
-				eatenByWhiteStr.append(chessboard[possibleRow][possibleCol].getPiece());
-			
-			chessboard[possibleRow][possibleCol].setPiece(chessboard[currentRow][currentCol].getPiece());
-			chessboard[possibleRow][possibleCol].setTeam(chessboard[currentRow][currentCol].getTeam());
-			
-			chessboard[currentRow][currentCol].setPiece(emptySlot);
-			chessboard[currentRow][currentCol].setTeam(null);
-			chessboard[currentRow][currentCol].setImageStr(null);
+			if(castle == 0) {
+				if(chessboard[possibleRow][possibleCol].getTeam().equals(teamWhite)) 
+					eatenByBlackStr.append(chessboard[possibleRow][possibleCol].getPiece());
+				else
+					eatenByWhiteStr.append(chessboard[possibleRow][possibleCol].getPiece());
+				
+				chessboard[possibleRow][possibleCol].setPiece(chessboard[currentRow][currentCol].getPiece());
+				chessboard[possibleRow][possibleCol].setTeam(chessboard[currentRow][currentCol].getTeam());
+				chessboard[possibleRow][possibleCol].setMoveCount(chessboard[currentRow][currentCol].getMoveCount());
+				
+				chessboard[currentRow][currentCol].setPiece(emptySlot);
+				chessboard[currentRow][currentCol].setTeam(null);
+				chessboard[currentRow][currentCol].setImageStr(null);
+				chessboard[currentRow][currentCol].setMoveCount(0);
+				
+				// Increases piece counter
+				chessboard[possibleRow][possibleCol].incrementCount();
+				System.out.println("Count: "+chessboard[possibleRow][possibleCol].getMoveCount());
+			}
 		}
 		// return 2 means that the piece is not a valid slot
 		else {
@@ -329,6 +364,9 @@ public class Game extends JPanel{
 		
 	}
 	
+	/*
+	 * 
+	 */
 	public static void pawnPromotion(int currentRow, int currentCol) {
 		Object[] options = {"Queen", "Rook", "Bishop", "Knight"};
         int choice = JOptionPane.showOptionDialog(null, "Time for an upgrade!", "Pawn Promotion", 
@@ -345,6 +383,86 @@ public class Game extends JPanel{
             // User clicked Button 4
         	chessboard[currentRow][currentCol].setPiece("[N]");
         } 
+	}
+	
+	/*
+	 * Castling is when the king and rook pieces switch places
+	 * Conditions:
+	 * Castling is only possible if neither king nor the rook have moved
+	 * There must not be any pieces between the king and the rook
+	 */
+	public static void castle(int currentRow, int currentCol, int j) {
+		// Returns if the current piece (king or rook) is at count 0. if not, return since it would be an invalid move.
+		if (chessboard[currentRow][currentCol].getMoveCount() != 0)
+			return;
+		
+		if(currentCol == 0) {	// When selecting Rook on 'A' column
+			int i;
+			for(i = 1; i <= chessboard.length/2; i++) 
+			{
+				if(chessboard[currentRow][currentCol+i].getTeam() == null)
+					continue;
+				// If non-empty slot between rook and king, return
+				else if(!(chessboard[currentRow][currentCol+i].getPiece().equals("[K]"))) 
+					return;
+				// Checks to see if piece is a king and if its count is 0
+				if (chessboard[currentRow][currentCol+i].getPiece().equals("[K]")) {
+					if (chessboard[currentRow][currentCol+i].getMoveCount() != 0) 
+						return;
+					else
+						break;	
+				}
+			}
+			chessboard[currentRow][currentCol+i].setPiece(chessboard[currentRow][currentCol+i]
+					.getPiece().replace('[', '{').replace(']','}'));
+		}else if(currentCol == 7) {		// When selecting Rook on 'H' Column
+			int i;
+			for(i = 1; i <= chessboard.length/2; i++) {
+				if(chessboard[currentRow][currentCol-i].getTeam() == null)
+					continue;
+				// If non-empty slot between rook and king, return
+				else if(!(chessboard[currentRow][currentCol-i].getPiece().equals("[K]"))) 
+					return;
+				// Checks to see if piece is a king and if its count is 0
+				if (chessboard[currentRow][currentCol-i].getPiece().equals("[K]")) {
+					if (chessboard[currentRow][currentCol-i].getMoveCount() != 0) 
+						return;
+					else
+						break;	
+				}
+			}
+			chessboard[currentRow][currentCol-i].setPiece(chessboard[currentRow][currentCol-i]
+					.getPiece().replace('[', '{').replace(']','}'));
+		}else {		// When selecting the King
+			int count = chessboard[currentRow][currentCol].getMoveCount();
+			System.out.println("j: "+j+" Count: "+count);
+			int i;
+			for(i = 1; i < chessboard.length; i++) {
+				// J is used to switch the orientation of the search
+				// +i == right side, -i == left side
+				if (j == 1)	i = -i;
+				
+				// if slot is empty, continues to the next slot
+				if(chessboard[currentRow][currentCol+i].getTeam() == null) {
+					if(j == 1) i = -i;		// switches orientation back to normal
+					continue;
+				}
+				// If non-empty slot between rook and king, return
+				else if(!(chessboard[currentRow][currentCol+i].getPiece().equals("[R]"))) 
+					return;
+				// Checks to see if piece is a king and if its count is 0
+				if (chessboard[currentRow][currentCol+i].getPiece().equals("[R]")) {
+					System.out.println("j: "+j);
+					if (chessboard[currentRow][currentCol+i].getMoveCount() != 0) 
+						return;
+					else
+						break;	
+				}
+			}
+			chessboard[currentRow][currentCol+i].setPiece(chessboard[currentRow][currentCol+i]
+					.getPiece().replace('[', '{').replace(']','}'));
+			
+		}
 	}
 	
 	/*
