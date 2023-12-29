@@ -6,6 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalTime;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -14,6 +15,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 
@@ -86,7 +88,8 @@ public class Game extends JPanel{
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					timerLbl.setText(String.valueOf(nSeconds++));
+					LocalTime time = LocalTime.ofSecondOfDay(nSeconds++);
+					timerLbl.setText(String.valueOf(time));
 				}
 			});
 		}
@@ -295,6 +298,14 @@ public class Game extends JPanel{
 		else {
 			errorCode =  2;
 		}
+		
+		// Triggers pawn promotion condition
+		if(chessboard[possibleRow][possibleCol].getPiece().equals("[P]")) {
+			if (possibleRow == 0 || possibleRow == 7) {
+				pawnPromotion(possibleRow, possibleCol);
+			}
+		}
+		
 		// Removes the "Potential" moves from the board
 		for(int i = 0; i < chessboard.length; i++) {
 			for(int j = 0; j < chessboard[0].length; j++) {
@@ -318,6 +329,24 @@ public class Game extends JPanel{
 		
 	}
 	
+	public static void pawnPromotion(int currentRow, int currentCol) {
+		Object[] options = {"Queen", "Rook", "Bishop", "Knight"};
+        int choice = JOptionPane.showOptionDialog(null, "Time for an upgrade!", "Pawn Promotion", 
+        		JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        if (choice == 0) {
+        	chessboard[currentRow][currentCol].setPiece("[Q]");
+        } else if (choice == 1) {
+        	chessboard[currentRow][currentCol].setPiece("[R]");
+            // User clicked Button 2
+        } else if (choice == 2) {
+            // User clicked Button 3
+        	chessboard[currentRow][currentCol].setPiece("[B]");
+        } else if (choice == 3) {
+            // User clicked Button 4
+        	chessboard[currentRow][currentCol].setPiece("[N]");
+        } 
+	}
+	
 	/*
 	 * Logic for Pawn movement
 	 * Pawn movement allows it to move in 1 directions:
@@ -328,9 +357,10 @@ public class Game extends JPanel{
 		String teamWhite = "WHITE";
 		String currentTeam = chessboard[gameRow][gameCol].getTeam();
 		int steps = 1;
-		int direction = 1;
 		
-		if(gameRow == 6 || gameRow == 1)
+		if(gameRow == 6 && !currentTeam.equals(teamWhite))
+			steps = 2;
+		else if(gameRow == 1 && currentTeam.equals(teamWhite))
 			steps = 2;
 		
 		// Marks potential slots for pawns to move
