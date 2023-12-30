@@ -23,6 +23,9 @@ public class Game extends JPanel{
 	
 	static PieceInfo[][] chessboard = new PieceInfo[8][8];
 	static JButton[][] buttons;
+	static JPanel[][] buttonPanels;
+	static JLabel[][] buttonLabels;
+	
 	JPanel gamePanel;
 	static JPanel scoreboardPanel;
 	
@@ -106,11 +109,12 @@ public class Game extends JPanel{
 	public static void playGame(int[] coords) {
 		String[] team = {"WHITE", "BLACK"};
 		String teamSelected = team[count%2];
-		
+		/*
+		 * changes the coordinated to help with orientation based on the team playing
 		if(teamSelected.equals(team[0])) {
 			coords[0] = buttons.length-1 -coords[0];
 		}
-		
+		*/
 		if(pieceCoords[0] == -1) {
 			for(int i = 0; i < pieceCoords.length; i++)
 				pieceCoords[i] = coords[i];
@@ -344,6 +348,7 @@ public class Game extends JPanel{
 		// Removes the "Potential" moves from the board
 		for(int i = 0; i < chessboard.length; i++) {
 			for(int j = 0; j < chessboard[0].length; j++) {
+				buttonPanels[i][j].setBorder(null);
 				if(chessboard[i][j].getPiece().equals(possibleSlot)) {
 					chessboard[i][j].setPiece(emptySlot);
 					buttons[i][j].setText(null);
@@ -685,29 +690,46 @@ public class Game extends JPanel{
 	    
 	    count = 0;
 		
-		buttons = new JButton[8][8];
+	    // chessboard.length == 8
+		buttons = new JButton[chessboard.length][chessboard[0].length];
+		buttonPanels = new JPanel[chessboard.length][chessboard[0].length];
+		buttonLabels = new JLabel[chessboard.length][chessboard[0].length];
 		
 		gbc.weightx = 1;
 		gbc.weighty = 1;
 		gbc.fill = GridBagConstraints.BOTH;
 		
+		int panelColorCounter = 0;
+		
 		// Generates an empty chess board
 		for(int i = 0; i < chessboard.length; i++) {
+			panelColorCounter++;
 			for(int j = 0; j < chessboard[0].length; j++) {
 				chessboard[i][j] = new PieceInfo();
 				chessboard[i][j].setPiece("[ ]");
 				
 				buttons[i][j] = new JButton();
+				buttonPanels[i][j] = new JPanel();
+				buttonLabels[i][j] = new JLabel();
+				
 		        buttons[i][j].addActionListener(new ButtonListener());
 		        gbc.gridx = j; 
 		        gbc.gridy = i;
 		        gbc.gridheight = 1;
 		        gbc.gridwidth = 1;
 		        gbl.setConstraints(buttons[i][j], gbc);
+		        
+		        buttonPanels[i][j].add(buttonLabels[i][j]);
+		        buttons[i][j].add(buttonPanels[i][j]);
 		        gamePanel.add(buttons[i][j]); 
 		        
-		        buttons[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
+		        if(panelColorCounter%2 ==0)
+		        	buttonPanels[i][j].setBackground(Color.gray);
+				else
+					buttonPanels[i][j].setBackground(Color.white);
 		        
+		        buttons[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
+		        panelColorCounter++;
 			}
 		}
 		
@@ -801,7 +823,7 @@ public class Game extends JPanel{
 	public static void updateBoard(String teamSelected) {
 		String teamWhite = "WHITE", teamBlack = "BLACK";
 		boolean whiteFlag = false;
-		int bpn = 0, wpn = 0; // bpn = blackPrintNum, wpn = whitePrintNum
+		
 		if (teamSelected.equals(teamWhite)) {
 			whiteFlag = true;
 			scoreboardPanel.remove(eatenByBlackLbl);
@@ -815,16 +837,9 @@ public class Game extends JPanel{
 		}
 		
 		loadImages();
+	
 		// Based on the current turn, variables are filled to help orient the board
 		for(int i = 0; i < chessboard.length; i++) {
-			if(whiteFlag) { 
-				bpn = chessboard.length - 1;
-				wpn = 0; 
-			}else {
-				bpn = i;
-				wpn = i;         
-			}
-			
 			// Updates the text on each button
 			for (int j = 0; j < chessboard[0].length; j++) {
 				
@@ -832,21 +847,16 @@ public class Game extends JPanel{
 				System.out.print(chessboard[i][j].getPiece());
 				ImageIcon icon = new ImageIcon(chessboard[i][j].getImage());
 				
-				int offset = buttons[bpn - i + wpn][j].getInsets().left;
-				buttons[bpn - i + wpn][j].setIcon(resizeIcon(icon, 50, 50));
-				buttons[bpn - i + wpn][j].setText(null);
+				int offset = buttons[i][j].getInsets().left;
 				
-				/*
-				buttons[bpn - i + wpn][j].setText(chessboard[i][j].getPiece());
-				if (chessboard[i][j].getPiece().contains("*")||chessboard[i][j].getPiece().contains("{")) 
-					buttons[bpn - i + wpn][j].setForeground(Color.green);
-				else if (chessboard[i][j].getTeam() == null)
-					buttons[bpn - i + wpn][j].setForeground(Color.white);
-				else if(chessboard[i][j].getTeam().equals(teamWhite))
-					buttons[bpn - i + wpn][j].setForeground(Color.GRAY);
-				else if(chessboard[i][j].getTeam().equals(teamBlack))
-					buttons[bpn - i + wpn][j].setForeground(Color.BLACK);
-				*/	
+				buttonLabels[i][j].setIcon(resizeIcon(icon, 50, 50));
+				
+				// Outlines slot that is eligible to get eaten
+				if (chessboard[i][j].getPiece().equals("[*]")||
+						chessboard[i][j].getPiece().contains("{")) {
+				//	buttonPanels[i][j].setBorder(BorderFactory.createLineBorder(Color.green, 2));
+				//	buttonPanels[i][j].setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+				}
 			}
 			System.out.println();
 		}
