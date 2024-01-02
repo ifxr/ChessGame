@@ -126,6 +126,7 @@ public class Game extends JPanel{
 			
 			int gameDecider = playMove(pieceCoords, nextMove);
 			
+			// End game condition
 			if (gameDecider == 1) {
 				currentTeamLabel.setText("WINNER: "+ teamSelected);
 				updateBoard(teamSelected);
@@ -135,7 +136,8 @@ public class Game extends JPanel{
 			    	  timer = null;
 			    }
 				return;
-			}else if(gameDecider == 2) {
+			}//
+			else if(gameDecider == 2) {
 				updateBoard(teamSelected);
 				return;
 			}
@@ -283,6 +285,8 @@ public class Game extends JPanel{
 			chessboard[currentRow][currentCol].setPiece(emptySlot);
 			chessboard[currentRow][currentCol].setTeam(null);
 			chessboard[currentRow][currentCol].setImageStr(null);
+			
+			//--------------------------------------------------
 			chessboard[currentRow][currentCol].setMoveCount(0);
 			
 			// Increases piece counter
@@ -292,8 +296,12 @@ public class Game extends JPanel{
 		// checks to see if the selected piece is indeed a piece that can be eaten
 		else if(chessboard[possibleRow][possibleCol].getPiece().contains("{")) {
 			// Switches the rook and the king AKA castle
+			System.out.println("Current Piece: "+chessboard[currentRow][currentCol].getTeam());
+			System.out.println("Next Piece: "+chessboard[possibleRow][possibleCol].getTeam());
+			System.out.println("Castle: "+ castle);
+			
 			if(chessboard[currentRow][currentCol].getTeam().equals(
-					chessboard[possibleRow][currentCol].getTeam())) {
+					chessboard[possibleRow][possibleCol].getTeam())) {
 				chessboard[currentRow][currentCol].setImageStr(null);
 				chessboard[possibleRow][possibleCol].setImageStr(null);
 				
@@ -305,9 +313,7 @@ public class Game extends JPanel{
 				
 				chessboard[currentRow][currentCol].incrementCount();
 				chessboard[possibleRow][possibleCol].incrementCount();
-				castle++;
-				
-				
+				castle++;	
 			}
 			// If 'King' gets eaten, game ends
 			else if(chessboard[possibleRow][possibleCol].getPiece().contains("K"))
@@ -348,7 +354,7 @@ public class Game extends JPanel{
 		// Removes the "Potential" moves from the board
 		for(int i = 0; i < chessboard.length; i++) {
 			for(int j = 0; j < chessboard[0].length; j++) {
-				buttonPanels[i][j].setBorder(null);
+				
 				if(chessboard[i][j].getPiece().equals(possibleSlot)) {
 					chessboard[i][j].setPiece(emptySlot);
 					buttons[i][j].setText(null);
@@ -368,9 +374,11 @@ public class Game extends JPanel{
 			return 0;
 		
 	}
-	
+ 	
 	/*
-	 * 
+	 * Once the respective pawn reaches the last row, the pawn will have the option to promote
+	 * to one of the following pieces and inherit their abilities. 
+	 * The pieces are: Queen, Rook, Bishop, or Knight
 	 */
 	public static void pawnPromotion(int currentRow, int currentCol) {
 		Object[] options = {"Queen", "Rook", "Bishop", "Knight"};
@@ -398,24 +406,31 @@ public class Game extends JPanel{
 	 */
 	public static void castle(int currentRow, int currentCol, int j) {
 		// Returns if the current piece (king or rook) is at count 0. if not, return since it would be an invalid move.
-		if (chessboard[currentRow][currentCol].getMoveCount() != 0)
+		if (chessboard[currentRow][currentCol].getMoveCount() != 0) 
+			return;
+		
+		if (!(chessboard[currentRow][currentCol].getPiece().contains("R") || 
+				chessboard[currentRow][currentCol].getPiece().contains("K"))) 
 			return;
 		
 		if(currentCol == 0) {	// When selecting Rook on 'A' column
 			int i;
 			for(i = 1; i <= chessboard.length/2; i++) 
 			{
-				if(chessboard[currentRow][currentCol+i].getTeam() == null)
+				if(chessboard[currentRow][currentCol+i].getTeam() == null) 
 					continue;
+				
 				// If non-empty slot between rook and king, return
 				else if(!(chessboard[currentRow][currentCol+i].getPiece().equals("[K]"))) 
 					return;
 				// Checks to see if piece is a king and if its count is 0
 				if (chessboard[currentRow][currentCol+i].getPiece().equals("[K]")) {
+					System.out.println("TEST: Is this the king");
 					if (chessboard[currentRow][currentCol+i].getMoveCount() != 0) 
 						return;
-					else
-						break;	
+					
+					else 
+						break;
 				}
 			}
 			chessboard[currentRow][currentCol+i].setPiece(chessboard[currentRow][currentCol+i]
@@ -481,6 +496,7 @@ public class Game extends JPanel{
 		String currentTeam = chessboard[gameRow][gameCol].getTeam();
 		int steps = 1;
 		
+		// Checks to see that that pawn is 
 		if(gameRow == 6 && !currentTeam.equals(teamWhite))
 			steps = 2;
 		else if(gameRow == 1 && currentTeam.equals(teamWhite))
@@ -758,12 +774,18 @@ public class Game extends JPanel{
 		return 0;
 	}
 	
+	/*
+	 * 
+	 */
 	public static Icon resizeIcon(ImageIcon icon, int resizedWidth, int resizedHeight) {
 		Image img = icon.getImage();
 		Image resizedImage = img.getScaledInstance(resizedWidth,  resizedHeight,  java.awt.Image.SCALE_SMOOTH);
 		return new ImageIcon(resizedImage);
 	}
 	
+	/*
+	 * 
+	 */
 	public static void loadImages() {
 		String[][] images = {{"images/Pawn_Wht.png", "images/Knight_Wht.png", "images/Rook_Wht.png", 
 								"images/Bishop_Wht.png", "images/Queen_Wht.png", "images/King_Wht.png"},
@@ -775,37 +797,37 @@ public class Game extends JPanel{
 		for(int i = 0; i < chessboard.length; i++) {
 			for(int j = 0; j < chessboard[0].length; j++) {
 				
-				if(chessboard[i][j].getPiece().equals("[P]")) {
+				if(chessboard[i][j].getPiece().contains("P")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
 						chessboard[i][j].setImageStr(images[0][0]);
 					else
 						chessboard[i][j].setImageStr(images[1][0]);
 				}
-				else if(chessboard[i][j].getPiece().equals("[N]")) {
+				else if(chessboard[i][j].getPiece().contains("N")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
 						chessboard[i][j].setImageStr(images[0][1]);
 					else
 						chessboard[i][j].setImageStr(images[1][1]);
 				}
-				else if(chessboard[i][j].getPiece().equals("[R]")) {
+				else if(chessboard[i][j].getPiece().contains("R")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
 						chessboard[i][j].setImageStr(images[0][2]);
 					else
 						chessboard[i][j].setImageStr(images[1][2]);
 				}
-				else if(chessboard[i][j].getPiece().equals("[B]")) {
+				else if(chessboard[i][j].getPiece().contains("B")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
 						chessboard[i][j].setImageStr(images[0][3]);
 					else
 						chessboard[i][j].setImageStr(images[1][3]);
 				}
-				else if(chessboard[i][j].getPiece().equals("[Q]")) {
+				else if(chessboard[i][j].getPiece().contains("Q")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
 						chessboard[i][j].setImageStr(images[0][4]);
 					else
 						chessboard[i][j].setImageStr(images[1][4]);
 				}
-				else if(chessboard[i][j].getPiece().equals("[K]")) {
+				else if(chessboard[i][j].getPiece().contains("K")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
 						chessboard[i][j].setImageStr(images[0][5]);
 					else
@@ -837,12 +859,12 @@ public class Game extends JPanel{
 		}
 		
 		loadImages();
-	
+		int panelColorCounter = 0;
 		// Based on the current turn, variables are filled to help orient the board
 		for(int i = 0; i < chessboard.length; i++) {
+			panelColorCounter++;
 			// Updates the text on each button
 			for (int j = 0; j < chessboard[0].length; j++) {
-				
 				//System.out.println("Image Str: "+chessboard[i][j].getImage());
 				System.out.print(chessboard[i][j].getPiece());
 				ImageIcon icon = new ImageIcon(chessboard[i][j].getImage());
@@ -854,9 +876,16 @@ public class Game extends JPanel{
 				// Outlines slot that is eligible to get eaten
 				if (chessboard[i][j].getPiece().equals("[*]")||
 						chessboard[i][j].getPiece().contains("{")) {
-				//	buttonPanels[i][j].setBorder(BorderFactory.createLineBorder(Color.green, 2));
-				//	buttonPanels[i][j].setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+					buttonPanels[i][j].setBackground(Color.green);
 				}
+				// Resets color of panel back from green to white/gray
+				else{
+					if(panelColorCounter%2 ==0)
+						buttonPanels[i][j].setBackground(Color.gray);
+					else
+						buttonPanels[i][j].setBackground(Color.white);
+				}
+				panelColorCounter++;
 			}
 			System.out.println();
 		}
