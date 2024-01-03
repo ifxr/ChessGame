@@ -17,7 +17,7 @@ import javax.swing.SwingUtilities;
  */
 public class MenuPanel extends JPanel implements ActionListener{
 	
-	Game game;					// instance of chess game
+	GamePanel gamePnl;					// instance of chess game
 	CardLayout cardLayout;		// manager for panels
 	
 	// Used to organize buttons within the main menu panel
@@ -38,6 +38,7 @@ public class MenuPanel extends JPanel implements ActionListener{
 	 */
 	MenuPanel(CardLayout cardLayout){ 
 		this.cardLayout = cardLayout;
+		
 		
 		// Panels used to mainly for layout organization
 		rowOnePanel = new JPanel();
@@ -98,13 +99,15 @@ public class MenuPanel extends JPanel implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		//System.out.println("Source: "+ e.getSource());
-		
 		if(e.getSource() == pvpLocalBtn) {
 			Container container = this.getParent();
-			cardLayout.show(container, "game");
+			gamePnl = new GamePanel(cardLayout);
+			container.add(gamePnl, "gamePnl");
+			cardLayout.show(container, "gamePnl");
 
 			SwingUtilities.updateComponentTreeUI(this);
 		}
+		
 		
 	}
 }

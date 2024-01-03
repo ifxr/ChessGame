@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
@@ -42,6 +43,7 @@ public class Game extends JPanel{
 	static StringBuilder eatenByWhiteStr = new StringBuilder("");
 	static StringBuilder eatenByBlackStr = new StringBuilder("");
 	
+	static SettingsPanel settings;
 	
 	static int count;
 	static int[] pieceCoords = {-1,-1};
@@ -49,6 +51,7 @@ public class Game extends JPanel{
 	
 	
 	Game(){
+		System.out.println("settings: "+ settings);
 		gamePanel = new JPanel();
 		scoreboardPanel = new JPanel();
 		
@@ -73,6 +76,9 @@ public class Game extends JPanel{
 		updateBoard(startingTeam);	    
 	 }
 	
+	/**
+	 * 
+	 */
 	private static class ButtonListener implements ActionListener{
 
 		@Override
@@ -84,6 +90,9 @@ public class Game extends JPanel{
 		}
 	}
 	
+	/**
+	 * 
+	 */
 	public class UpdateUITask extends TimerTask{
 		int nSeconds = 0;
 		public void run() {
@@ -98,6 +107,10 @@ public class Game extends JPanel{
 		}
 	}
 	
+	/**
+	 * 
+	 * @param flag
+	 */
 	public static void enableGame(boolean flag) {
 		for(int i = 0; i < buttons.length; i++) {
 			for(int j = 0; j<  buttons[0].length; j++) {
@@ -106,6 +119,10 @@ public class Game extends JPanel{
 		}
 	}
 	
+	/**
+	 * 
+	 * @param coords
+	 */
 	public static void playGame(int[] coords) {
 		String[] team = {"WHITE", "BLACK"};
 		String teamSelected = team[count%2];
@@ -149,6 +166,11 @@ public class Game extends JPanel{
 		
 	}
 	
+	/**
+	 * 
+	 * @param c
+	 * @return
+	 */
 	private static int[] findButton(Object c) {
 		int[] coords = new int[2];
         for (int x = 0; x < buttons.length; x++) {
@@ -843,6 +865,8 @@ public class Game extends JPanel{
 	 * Updates the GUI board
 	 */
 	public static void updateBoard(String teamSelected) {
+		//Color colorOne = settings.getColorOne();
+		
 		String teamWhite = "WHITE", teamBlack = "BLACK";
 		boolean whiteFlag = false;
 		
@@ -881,7 +905,7 @@ public class Game extends JPanel{
 				// Resets color of panel back from green to white/gray
 				else{
 					if(panelColorCounter%2 ==0)
-						buttonPanels[i][j].setBackground(Color.gray);
+						buttonPanels[i][j].setBackground(Color.GRAY);
 					else
 						buttonPanels[i][j].setBackground(Color.white);
 				}
