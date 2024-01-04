@@ -1,6 +1,8 @@
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -43,15 +45,17 @@ public class Game extends JPanel{
 	static StringBuilder eatenByWhiteStr = new StringBuilder("");
 	static StringBuilder eatenByBlackStr = new StringBuilder("");
 	
-	static SettingsPanel settings;
-	
 	static int count;
 	static int[] pieceCoords = {-1,-1};
 	static int[] nextMove = {-1, -1};
 	
+	private static ColorSingleton colorSingleton;
 	
-	Game(){
-		System.out.println("settings: "+ settings);
+	//static SettingsPanel settings = SettingsPanel.getInstance(cardLayout);
+	
+	Game(CardLayout cardLayout){
+		colorSingleton = ColorSingleton.getInstance();
+		
 		gamePanel = new JPanel();
 		scoreboardPanel = new JPanel();
 		
@@ -866,6 +870,8 @@ public class Game extends JPanel{
 	 */
 	public static void updateBoard(String teamSelected) {
 		//Color colorOne = settings.getColorOne();
+		//System.out.println("Game Color: "+ colorOne);
+		Color colorOne = colorSingleton.getSelectedColor();
 		
 		String teamWhite = "WHITE", teamBlack = "BLACK";
 		boolean whiteFlag = false;
@@ -905,7 +911,7 @@ public class Game extends JPanel{
 				// Resets color of panel back from green to white/gray
 				else{
 					if(panelColorCounter%2 ==0)
-						buttonPanels[i][j].setBackground(Color.GRAY);
+						buttonPanels[i][j].setBackground(colorOne);
 					else
 						buttonPanels[i][j].setBackground(Color.white);
 				}

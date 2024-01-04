@@ -9,20 +9,21 @@ import javax.swing.JColorChooser;
 import javax.swing.JPanel;
 
 public class SettingsPanel extends JPanel implements ActionListener {
-	private static SettingsPanel instance;
+	private ColorSingleton colorSingleton;
 	
 	JButton colorOneBtn;
 	JButton colorTwoBtn;
 	JButton backBtn;
 	JButton testBtn;
 	
-	Color colorOne;
-	Color colorTwo;
+	static Color colorOne;
+	static Color colorTwo;
 	
-	static CardLayout cardLayout;
+	CardLayout cardLayout;
 	
 	SettingsPanel(CardLayout cardLayout){ 
 		this.cardLayout = cardLayout;
+		colorSingleton = ColorSingleton.getInstance();
 		
 		buttonSetup();
         
@@ -30,13 +31,6 @@ public class SettingsPanel extends JPanel implements ActionListener {
         this.add(colorTwoBtn);
         this.add(backBtn);
         this.add(testBtn);
-	}
-	
-	public static SettingsPanel getInstance(CardLayout cardLayout) {
-		if (instance == null) {
-            instance = new SettingsPanel(cardLayout);
-        }
-		return instance;
 	}
 	
 	public void buttonSetup() {
@@ -53,11 +47,13 @@ public class SettingsPanel extends JPanel implements ActionListener {
         testBtn.addActionListener(this);
 	}
 	
-	public Color getColorOne() {
-		System.out.println("Color One: "+ colorOne);
+	public void setColorOne() {
 		if(colorOne == null)
 			colorOne = Color.gray;
-		return colorOne;
+		else
+			colorOne = JColorChooser.showDialog(this, "Choose a color", null);
+		
+		colorSingleton.setSelectedColor(colorOne);
 	}
 
 	public Color getColorTwo() {
@@ -68,7 +64,7 @@ public class SettingsPanel extends JPanel implements ActionListener {
 	
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == colorOneBtn) {
-			colorOne = JColorChooser.showDialog(this, "Choose a color", null);
+			setColorOne();
 		}
 		else if (e.getSource() == colorTwoBtn) {
 			colorTwo = JColorChooser.showDialog(this, "Choose a color", null);
@@ -78,7 +74,7 @@ public class SettingsPanel extends JPanel implements ActionListener {
 			cardLayout.show(container, "gamePnl");
 		}
 		else if(e.getSource() == testBtn) {
-			System.out.println("Color: "+ getColorOne());
+			System.out.println("Color: "+ colorOne);
 		}
     }
 }

@@ -25,7 +25,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		this.cardLayout = cardLayout;
 		
 		buttonLayoutSetup();
-		game = new Game();
+		game = new Game(cardLayout);
 		
 		this.setLayout(new BorderLayout());
 		this.add(game, BorderLayout.CENTER);
@@ -89,7 +89,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		// TODO Auto-generated method stub
 		if(e.getSource() == resetButton) {
 			this.remove(game);
-			game = new Game();
+			game = new Game(cardLayout);
 			this.add(game, BorderLayout.CENTER);
 			SwingUtilities.updateComponentTreeUI(this);
 		}
