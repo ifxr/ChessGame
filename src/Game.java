@@ -50,10 +50,15 @@ public class Game extends JPanel{
 	static int[] nextMove = {-1, -1};
 	
 	private static ColorSingleton colorSingleton;
+	static AudioPlayer audioPlayer;
 	
-	//static SettingsPanel settings = SettingsPanel.getInstance(cardLayout);
+	static String audioMove = "";
+	static ImageIcon blankImage;
 	
-	Game(CardLayout cardLayout){
+	/**
+	 * 
+	 */
+	Game(){
 		colorSingleton = ColorSingleton.getInstance();
 		
 		gamePanel = new JPanel();
@@ -90,7 +95,9 @@ public class Game extends JPanel{
 			// TODO Auto-generated method stub
 			int[] coords = new int[2];
     		coords = findButton(e.getSource());
-    		playGame(coords);
+    		
+			playGame(coords);
+			
 		}
 	}
 	
@@ -126,6 +133,7 @@ public class Game extends JPanel{
 	/**
 	 * 
 	 * @param coords
+	 * @throws Exception 
 	 */
 	public static void playGame(int[] coords) {
 		String[] team = {"WHITE", "BLACK"};
@@ -302,34 +310,36 @@ public class Game extends JPanel{
 			nextMove[i] = -1;
 		}
 		
+		ImageIcon currImg = chessboard[currentRow][currentCol].getImage();
+		ImageIcon possImg = chessboard[possibleRow][possibleCol].getImage();
+		
 		// checks to see if selected slot is one where the original piece can go to
 		if(chessboard[possibleRow][possibleCol].getPiece().equals(possibleSlot)) {
 			chessboard[possibleRow][possibleCol].setPiece(chessboard[currentRow][currentCol].getPiece());
 			chessboard[possibleRow][possibleCol].setTeam(chessboard[currentRow][currentCol].getTeam());
+			chessboard[possibleRow][possibleCol].setImage(currImg);
 			chessboard[possibleRow][possibleCol].setMoveCount(chessboard[currentRow][currentCol].getMoveCount());
 			
 			chessboard[currentRow][currentCol].setPiece(emptySlot);
 			chessboard[currentRow][currentCol].setTeam(null);
-			chessboard[currentRow][currentCol].setImageStr(null);
+			chessboard[currentRow][currentCol].setImage(possImg);
 			
 			//--------------------------------------------------
 			chessboard[currentRow][currentCol].setMoveCount(0);
 			
 			// Increases piece counter
 			chessboard[possibleRow][possibleCol].incrementCount();
-			System.out.println("Count: "+chessboard[possibleRow][possibleCol].getMoveCount());
+			audioMove = "move";
 		}
 		// checks to see if the selected piece is indeed a piece that can be eaten
 		else if(chessboard[possibleRow][possibleCol].getPiece().contains("{")) {
 			// Switches the rook and the king AKA castle
-			System.out.println("Current Piece: "+chessboard[currentRow][currentCol].getTeam());
-			System.out.println("Next Piece: "+chessboard[possibleRow][possibleCol].getTeam());
-			System.out.println("Castle: "+ castle);
+			audioMove = "capture";
 			
 			if(chessboard[currentRow][currentCol].getTeam().equals(
 					chessboard[possibleRow][possibleCol].getTeam())) {
-				chessboard[currentRow][currentCol].setImageStr(null);
-				chessboard[possibleRow][possibleCol].setImageStr(null);
+				chessboard[currentRow][currentCol].setImage(possImg);
+				chessboard[possibleRow][possibleCol].setImage(currImg);
 				
 				String tempCur = chessboard[currentRow][currentCol].getPiece();		// Temporary string to save current piece
 				String tempPos = chessboard[possibleRow][possibleCol].getPiece();	// Temporary string to save possible piece
@@ -353,16 +363,18 @@ public class Game extends JPanel{
 				
 				chessboard[possibleRow][possibleCol].setPiece(chessboard[currentRow][currentCol].getPiece());
 				chessboard[possibleRow][possibleCol].setTeam(chessboard[currentRow][currentCol].getTeam());
+				
+				chessboard[possibleRow][possibleCol].setImage(currImg);
+				
 				chessboard[possibleRow][possibleCol].setMoveCount(chessboard[currentRow][currentCol].getMoveCount());
 				
 				chessboard[currentRow][currentCol].setPiece(emptySlot);
 				chessboard[currentRow][currentCol].setTeam(null);
-				chessboard[currentRow][currentCol].setImageStr(null);
+				chessboard[currentRow][currentCol].setImage(blankImage);
 				chessboard[currentRow][currentCol].setMoveCount(0);
 				
 				// Increases piece counter
 				chessboard[possibleRow][possibleCol].incrementCount();
-				System.out.println("Count: "+chessboard[possibleRow][possibleCol].getMoveCount());
 			}
 		}
 		// return 2 means that the piece is not a valid slot
@@ -422,6 +434,7 @@ public class Game extends JPanel{
             // User clicked Button 4
         	chessboard[currentRow][currentCol].setPiece("[N]");
         } 
+        audioMove = "promote";
 	}
 	
 	/*
@@ -741,11 +754,8 @@ public class Game extends JPanel{
 		gbc.weighty = 1;
 		gbc.fill = GridBagConstraints.BOTH;
 		
-		int panelColorCounter = 0;
-		
 		// Generates an empty chess board
 		for(int i = 0; i < chessboard.length; i++) {
-			panelColorCounter++;
 			for(int j = 0; j < chessboard[0].length; j++) {
 				chessboard[i][j] = new PieceInfo();
 				chessboard[i][j].setPiece("[ ]");
@@ -765,13 +775,8 @@ public class Game extends JPanel{
 		        buttons[i][j].add(buttonPanels[i][j]);
 		        gamePanel.add(buttons[i][j]); 
 		        
-		        if(panelColorCounter%2 ==0)
-		        	buttonPanels[i][j].setBackground(Color.gray);
-				else
-					buttonPanels[i][j].setBackground(Color.white);
-		        
 		        buttons[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
-		        panelColorCounter++;
+
 			}
 		}
 		
@@ -797,13 +802,14 @@ public class Game extends JPanel{
 			chessboard[chessboard.length-2][i].setPiece(pawnRow[i]);
 			chessboard[chessboard.length-2][i].setTeam(teamBlack);
 		}
+		loadImages();
 		return 0;
 	}
 	
 	/*
 	 * 
 	 */
-	public static Icon resizeIcon(ImageIcon icon, int resizedWidth, int resizedHeight) {
+	public static ImageIcon resizeIcon(ImageIcon icon, int resizedWidth, int resizedHeight) {
 		Image img = icon.getImage();
 		Image resizedImage = img.getScaledInstance(resizedWidth,  resizedHeight,  java.awt.Image.SCALE_SMOOTH);
 		return new ImageIcon(resizedImage);
@@ -825,42 +831,46 @@ public class Game extends JPanel{
 				
 				if(chessboard[i][j].getPiece().contains("P")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
-						chessboard[i][j].setImageStr(images[0][0]);
+						chessboard[i][j].setImage(new ImageIcon(images[0][0]));
 					else
-						chessboard[i][j].setImageStr(images[1][0]);
+						chessboard[i][j].setImage(new ImageIcon(images[1][0]));
 				}
 				else if(chessboard[i][j].getPiece().contains("N")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
-						chessboard[i][j].setImageStr(images[0][1]);
+						chessboard[i][j].setImage(new ImageIcon(images[0][1]));
 					else
-						chessboard[i][j].setImageStr(images[1][1]);
+						chessboard[i][j].setImage(new ImageIcon(images[1][1]));
 				}
 				else if(chessboard[i][j].getPiece().contains("R")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
-						chessboard[i][j].setImageStr(images[0][2]);
+						chessboard[i][j].setImage(new ImageIcon(images[0][2]));
 					else
-						chessboard[i][j].setImageStr(images[1][2]);
+						chessboard[i][j].setImage(new ImageIcon(images[1][2]));
 				}
 				else if(chessboard[i][j].getPiece().contains("B")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
-						chessboard[i][j].setImageStr(images[0][3]);
+						chessboard[i][j].setImage(new ImageIcon(images[0][3]));
 					else
-						chessboard[i][j].setImageStr(images[1][3]);
+						chessboard[i][j].setImage(new ImageIcon(images[1][3]));
 				}
 				else if(chessboard[i][j].getPiece().contains("Q")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
-						chessboard[i][j].setImageStr(images[0][4]);
+						chessboard[i][j].setImage(new ImageIcon(images[0][4]));
 					else
-						chessboard[i][j].setImageStr(images[1][4]);
+						chessboard[i][j].setImage(new ImageIcon(images[1][4]));
 				}
 				else if(chessboard[i][j].getPiece().contains("K")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
-						chessboard[i][j].setImageStr(images[0][5]);
+						chessboard[i][j].setImage(new ImageIcon(images[0][5]));
 					else
-						chessboard[i][j].setImageStr(images[1][5]);
+						chessboard[i][j].setImage(new ImageIcon(images[1][5]));
 				}
-				else
-					chessboard[i][j].setImageStr(images[2][0]);
+				else {
+					chessboard[i][j].setImage(new ImageIcon(images[2][0]));
+					blankImage = resizeIcon(chessboard[i][j].getImage(), 50, 50);
+				}
+				
+				chessboard[i][j].setImage(resizeIcon(chessboard[i][j].getImage(), 50, 50));
 			}
 		}
 	}
@@ -871,7 +881,17 @@ public class Game extends JPanel{
 	public static void updateBoard(String teamSelected) {
 		//Color colorOne = settings.getColorOne();
 		//System.out.println("Game Color: "+ colorOne);
-		Color colorOne = colorSingleton.getSelectedColor();
+		
+		try {
+			audioPlayer = new AudioPlayer(audioMove);
+			audioMove = "";
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Color colorOne = colorSingleton.getSelectedColorOne();
+		Color colorTwo = colorSingleton.getSelectedColorTwo();
 		
 		String teamWhite = "WHITE", teamBlack = "BLACK";
 		boolean whiteFlag = false;
@@ -887,21 +907,17 @@ public class Game extends JPanel{
 			eatenByBlackLbl.setText(eatenByBlackStr.toString());
 			scoreboardPanel.add(eatenByBlackLbl, BorderLayout.EAST);
 		}
-		
-		loadImages();
+
 		int panelColorCounter = 0;
 		// Based on the current turn, variables are filled to help orient the board
 		for(int i = 0; i < chessboard.length; i++) {
 			panelColorCounter++;
 			// Updates the text on each button
 			for (int j = 0; j < chessboard[0].length; j++) {
-				//System.out.println("Image Str: "+chessboard[i][j].getImage());
-				System.out.print(chessboard[i][j].getPiece());
-				ImageIcon icon = new ImageIcon(chessboard[i][j].getImage());
 				
-				int offset = buttons[i][j].getInsets().left;
+				ImageIcon icon = chessboard[i][j].getImage();
 				
-				buttonLabels[i][j].setIcon(resizeIcon(icon, 50, 50));
+				buttonLabels[i][j].setIcon(icon);
 				
 				// Outlines slot that is eligible to get eaten
 				if (chessboard[i][j].getPiece().equals("[*]")||
@@ -913,7 +929,7 @@ public class Game extends JPanel{
 					if(panelColorCounter%2 ==0)
 						buttonPanels[i][j].setBackground(colorOne);
 					else
-						buttonPanels[i][j].setBackground(Color.white);
+						buttonPanels[i][j].setBackground(colorTwo);
 				}
 				panelColorCounter++;
 			}

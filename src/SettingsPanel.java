@@ -1,12 +1,18 @@
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class SettingsPanel extends JPanel implements ActionListener {
 	private ColorSingleton colorSingleton;
@@ -14,7 +20,6 @@ public class SettingsPanel extends JPanel implements ActionListener {
 	JButton colorOneBtn;
 	JButton colorTwoBtn;
 	JButton backBtn;
-	JButton testBtn;
 	
 	static Color colorOne;
 	static Color colorTwo;
@@ -25,12 +30,31 @@ public class SettingsPanel extends JPanel implements ActionListener {
 		this.cardLayout = cardLayout;
 		colorSingleton = ColorSingleton.getInstance();
 		
+		JPanel panel = new JPanel();
+		JLabel titleLabel = new JLabel("SETTINGS");
+		titleLabel.setHorizontalAlignment(JLabel.CENTER);
+		
+		//panel.setBackground(Color.red);
+		this.addComponentListener(new ComponentAdapter() {
+    	    public void componentResized(ComponentEvent e) {
+    	    	int width = getWidth();
+    			int height = getHeight();
+    	    	panel.setBounds((int)(width * 0.2), (int)(height * 0.2)-20, 
+    	    			(width - ((int)(width * 0.2)*2)), (height - ((int)(height * 0.2))*2));
+    	    }
+    	});
+		
 		buttonSetup();
         
-        this.add(colorOneBtn);
-        this.add(colorTwoBtn);
-        this.add(backBtn);
-        this.add(testBtn);
+		panel.setLayout(new GridLayout(4, 1));
+		panel.add(titleLabel);
+        panel.add(colorOneBtn);
+        panel.add(colorTwoBtn);
+        panel.add(backBtn);
+        
+        this.setBackground(Color.LIGHT_GRAY);
+        this.add(panel);
+        this.setLayout(null);
 	}
 	
 	public void buttonSetup() {
@@ -42,39 +66,20 @@ public class SettingsPanel extends JPanel implements ActionListener {
         
         backBtn = new JButton("Back");
         backBtn.addActionListener(this);
-        
-        testBtn = new JButton("test");
-        testBtn.addActionListener(this);
-	}
-	
-	public void setColorOne() {
-		if(colorOne == null)
-			colorOne = Color.gray;
-		else
-			colorOne = JColorChooser.showDialog(this, "Choose a color", null);
-		
-		colorSingleton.setSelectedColor(colorOne);
 	}
 
-	public Color getColorTwo() {
-		if (colorTwo == null)
-			colorTwo = Color.white;
-		return colorTwo;
-	}
-	
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == colorOneBtn) {
-			setColorOne();
+			colorOne = JColorChooser.showDialog(this, "Choose a color", null);
+			colorSingleton.setSelectedColorOne(colorOne);
 		}
 		else if (e.getSource() == colorTwoBtn) {
 			colorTwo = JColorChooser.showDialog(this, "Choose a color", null);
+			colorSingleton.setSelectedColorTwo(colorTwo);
 			
 		}else if(e.getSource() == backBtn) {
 			Container container = this.getParent();
 			cardLayout.show(container, "gamePnl");
-		}
-		else if(e.getSource() == testBtn) {
-			System.out.println("Color: "+ colorOne);
 		}
     }
 }

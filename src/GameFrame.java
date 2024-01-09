@@ -42,7 +42,8 @@ public class GameFrame extends JFrame{
 	GameFrame(){
 		// Builds frame
 		this.setTitle("Chess");
-		this.setSize(600,500); 
+		this.setSize(1000,700); 
+		this.setResizable(false);
 		this.setLayout(new BorderLayout()); 	 
 	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    

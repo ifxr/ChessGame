@@ -1,3 +1,4 @@
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 /**
@@ -8,7 +9,7 @@ import javax.swing.ImageIcon;
 public class PieceInfo{	
 	String team;				// Represents what team the playable piece will be in
 	String piece;				// Represents the piece the player will play in '[*]' form
-	String image;				// Will hold the image representing their corresponding piece
+	ImageIcon image;				// Will hold the image representing their corresponding piece
 	int moveCount;				// Counter for the amount of times the specified pieces moves
 	
 	public PieceInfo() {
@@ -55,7 +56,7 @@ public class PieceInfo{
 	 * Setter method to set an image to piece
 	 * @return
 	 */
-	public void setImageStr(String image) {
+	public void setImage(ImageIcon image) {
 		this.image = image;
 	}
 	
@@ -63,7 +64,7 @@ public class PieceInfo{
 	 * Getter method to get the image representing the specific piece
 	 * @return
 	 */
-	public String getImage() {
+	public ImageIcon getImage() {
 		return image;
 	}
 	
