@@ -20,8 +20,12 @@ public class GamePanel extends JPanel implements ActionListener{
 	
 	Game game;
 	Container container;
+
+	private PanelSingleton panelSingleton;
 	
 	GamePanel(CardLayout cardLayout){
+		panelSingleton = PanelSingleton.getInstance();
+		
 		this.cardLayout = cardLayout;
 		
 		buttonLayoutSetup();
@@ -86,6 +90,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	 */
 	public void actionPerformed(ActionEvent e) {
 		container = this.getParent();
+		panelSingleton.currentPanel("gamePnl");
 		// TODO Auto-generated method stub
 		if(e.getSource() == resetButton) {
 			this.remove(game);

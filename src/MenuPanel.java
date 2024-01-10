@@ -1,13 +1,19 @@
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -16,21 +22,40 @@ import javax.swing.SwingUtilities;
  * Whether that be against an AI, a local game, or an online game.
  */
 public class MenuPanel extends JPanel implements ActionListener{
+	private PanelSingleton panelSingleton;
 	
 	GamePanel gamePnl;					// instance of chess game
 	CardLayout cardLayout;		// manager for panels
+	JFrame frame;
 	
-	// Used to organize buttons within the main menu panel
-	JPanel rowOnePanel;			
-	JPanel rowTwoPanel;
-	JPanel rowThreePanel;
+	JPanel panel;
+	JLabel titleLbl;
 	
-	JButton pvpLocalBtn;		// Generate a local chess game vs another player
-	JButton pvpOnlineBtn;		// Allows you to play online against another player
-	JButton pveEasyBtn;			// Allows you to play against an AI, easy difficulty
-	JButton pveMediumBtn;		// Allows you to play against an AI, medium difficulty
-	JButton pveHardBtn;			// Allows you to play against an AI, hard difficulty
+	JButton playBtn;
+	JButton settingsBtn;
 	
+	
+	MenuPanel(CardLayout cardLayout, JFrame frame){
+		panelSingleton = PanelSingleton.getInstance();
+		panel = new JPanel();
+		panel.setLayout(new GridLayout(3, 1));
+		
+		
+		this.frame = frame;
+		this.cardLayout = cardLayout;
+		
+		int width = frame.getWidth();
+		int height = frame.getHeight();
+		System.out.println("Height: "+ height+" width: "+width);
+		panel.setBounds((int)(width * 0.2), (int)(height * 0.2)-20, 
+    			(width - ((int)(width * 0.2)*2)), (height - ((int)(height * 0.2))*2));
+		
+		menuComponentSetup();
+		
+		this.setBackground(Color.LIGHT_GRAY);
+        this.add(panel);
+        this.setLayout(null);
+	}
 	/**
 	 * 'MenuPanel' purpose is to create a panel and organize all the buttons that will be needed to access  certain features.
 	 * 
@@ -39,72 +64,61 @@ public class MenuPanel extends JPanel implements ActionListener{
 	MenuPanel(CardLayout cardLayout){ 
 		this.cardLayout = cardLayout;
 		
+		panel = new JPanel();
+		panel.setLayout(new GridLayout(3, 1));
 		
-		// Panels used to mainly for layout organization
-		rowOnePanel = new JPanel();
-		rowTwoPanel = new JPanel();
-		rowThreePanel = new JPanel();
+		this.addComponentListener(new ComponentAdapter() {
+    	    public void componentResized(ComponentEvent e) {
+    	    	int width = getWidth();
+    			int height = getHeight();
+    			System.out.println("Height: "+ height+" width: "+width);
+    			
+    	    	panel.setBounds((int)(width * 0.2), (int)(height * 0.2)-20, 
+    	    			(width - ((int)(width * 0.2)*2)), (height - ((int)(height * 0.2))*2));
+    	    }
+    	});
 		
-		// Setting each panel with a grid layout
-		rowOnePanel.setLayout(new GridLayout(1, 3));
-		rowTwoPanel.setLayout(new GridLayout(1, 3));
-		rowThreePanel.setLayout(new GridLayout(1, 3));
+		menuComponentSetup();
 		
-		// Menu Panel dimensions
-	    this.setSize(450,450);
-	    this.setLocation(100, 0);
-	    this.setBackground(Color.RED);
-	    this.setLayout(new GridLayout(3, 1));
-	    
-	    // Adds panels to main panel
-	    this.add(rowOnePanel);
-	    this.add(rowTwoPanel);
-	    this.add(rowThreePanel);
-	    
-	    // Generates all buttons
-	    buttonSetup();
+		this.setBackground(Color.LIGHT_GRAY);
+        this.add(panel);
+        this.setLayout(null);
 	}
 	
 	/**
 	 * The 'buttonSetup' method will create multiple buttons, add action listeners, and add them to the main panel
 	 */
-	public void buttonSetup() {
-		pvpLocalBtn = new JButton();
-		pvpLocalBtn.setText("Local");
-		pvpLocalBtn.addActionListener(this);
-		rowOnePanel.add(pvpLocalBtn);
+	public void menuComponentSetup() {
+		titleLbl = new JLabel("CHESS");
+		titleLbl.setHorizontalAlignment(JLabel.CENTER);
+		panel.add(titleLbl);
 		
-		pvpOnlineBtn = new JButton();
-		pvpOnlineBtn.setText("Online");
-		pvpOnlineBtn.addActionListener(this);
-		rowTwoPanel.add(pvpOnlineBtn);
+		playBtn = new JButton("Play");
+		playBtn.addActionListener(this);
+		panel.add(playBtn);
 		
-		pveEasyBtn = new JButton();
-		pveEasyBtn.setText("Easy");
-		pveEasyBtn.addActionListener(this);
-		rowThreePanel.add(pveEasyBtn);
-		
-		pveMediumBtn = new JButton();
-		pveMediumBtn.setText("Medium");
-		pveMediumBtn.addActionListener(this);
-		rowThreePanel.add(pveMediumBtn);
-		
-		pveHardBtn = new JButton();
-		pveHardBtn.setText("Hard");
-		pveHardBtn.addActionListener(this);
-		rowThreePanel.add(pveHardBtn);
+		settingsBtn = new JButton("Settings");
+		settingsBtn.addActionListener(this);
+		panel.add(settingsBtn);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		//System.out.println("Source: "+ e.getSource());
-		if(e.getSource() == pvpLocalBtn) {
-			Container container = this.getParent();
+		Container container = this.getParent();
+		panelSingleton.currentPanel("menuPnl");
+		
+		System.out.println("TEST 1: "+ cardLayout.toString());
+		System.out.println("TEST 2: "+ panelSingleton.previousPanel());
+		
+		if(e.getSource() == playBtn) {
 			gamePnl = new GamePanel(cardLayout);
 			container.add(gamePnl, "gamePnl");
 			cardLayout.show(container, "gamePnl");
 
+			SwingUtilities.updateComponentTreeUI(this);
+		}else if(e.getSource() == settingsBtn) {
+			cardLayout.show(container, "settingsPnl");
 			SwingUtilities.updateComponentTreeUI(this);
 		}
 		

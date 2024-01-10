@@ -501,6 +501,11 @@ public class Game extends JPanel{
 				// +i == right side, -i == left side
 				if (j == 1)	i = -i;
 				
+				if(currentCol+i < 0 && !(currentCol+i >= 0))
+					return;
+				else if(currentCol+i > chessboard.length - 1 && !(currentCol+i <= chessboard.length-1))
+					return;
+				
 				// if slot is empty, continues to the next slot
 				if(chessboard[currentRow][currentCol+i].getTeam() == null) {
 					if(j == 1) i = -i;		// switches orientation back to normal
@@ -914,9 +919,8 @@ public class Game extends JPanel{
 			panelColorCounter++;
 			// Updates the text on each button
 			for (int j = 0; j < chessboard[0].length; j++) {
-				
+				System.out.print(chessboard[i][j].getPiece());
 				ImageIcon icon = chessboard[i][j].getImage();
-				
 				buttonLabels[i][j].setIcon(icon);
 				
 				// Outlines slot that is eligible to get eaten

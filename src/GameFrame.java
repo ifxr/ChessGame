@@ -52,7 +52,7 @@ public class GameFrame extends JFrame{
 	    container = new JPanel(cardLayout);
 	    
 	    // creates new instances of the Menu and Game Panel
-	    menuPnl = new MenuPanel(cardLayout);
+	    menuPnl = new MenuPanel(cardLayout, this);
 	    //game = new Game();
 	    //gamePnl = new GamePanel(cardLayout);
 	    settingsPnl = new SettingsPanel(cardLayout);
