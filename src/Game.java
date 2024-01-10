@@ -546,18 +546,6 @@ public class Game extends JPanel{
 		else if(gameRow == 1 && currentTeam.equals(teamWhite))
 			steps = 2;
 		
-		// Marks potential slots for pawns to move
-		for(int i = 1; i <= steps; i++) {
-			int temp = i;
-			
-			if (!currentTeam.equals(teamWhite))
-				temp = -i;
-			
-			if(chessboard[gameRow + temp][gameCol].getPiece().equals(emptySlot)) {
-				chessboard[gameRow + temp][gameCol].setPiece(possibleMove);
-				buttons[gameRow + temp][gameCol].setText(possibleMove);
-			}
-		}
 		
 		// Checks diagonals to see if it can eat opposing pieces
 		for(int i = -1; i <= 2; i=i+2) {
@@ -593,6 +581,20 @@ public class Game extends JPanel{
 					else
 						markTarget(gameRow+temp, gameCol+temp, currentTeam);
 				}
+			}
+		}
+		// Marks potential slots for pawns to move
+		for(int i = 1; i <= steps; i++) {
+			int temp = i;
+			
+			if (!currentTeam.equals(teamWhite))
+				temp = -i;
+			if(chessboard[gameRow + temp][gameCol].getPiece().equals(emptySlot)) {
+				chessboard[gameRow + temp][gameCol].setPiece(possibleMove);
+				buttons[gameRow + temp][gameCol].setText(possibleMove);
+			}
+			else {
+				return;
 			}
 		}
 	}
