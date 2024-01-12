@@ -25,6 +25,8 @@ public class MenuPanel extends JPanel implements ActionListener{
 	private PanelSingleton panelSingleton;
 	
 	GamePanel gamePnl;					// instance of chess game
+	LeaderboardPanel leaderboardPnl;
+	
 	CardLayout cardLayout;		// manager for panels
 	JFrame frame;
 	
@@ -33,12 +35,13 @@ public class MenuPanel extends JPanel implements ActionListener{
 	
 	JButton playBtn;
 	JButton settingsBtn;
+	JButton leaderboardBtn;
 	
 	
 	MenuPanel(CardLayout cardLayout, JFrame frame){
 		panelSingleton = PanelSingleton.getInstance();
 		panel = new JPanel();
-		panel.setLayout(new GridLayout(3, 1));
+		panel.setLayout(new GridLayout(4, 1));
 		
 		
 		this.frame = frame;
@@ -71,7 +74,6 @@ public class MenuPanel extends JPanel implements ActionListener{
     	    public void componentResized(ComponentEvent e) {
     	    	int width = getWidth();
     			int height = getHeight();
-    			System.out.println("Height: "+ height+" width: "+width);
     			
     	    	panel.setBounds((int)(width * 0.2), (int)(height * 0.2)-20, 
     	    			(width - ((int)(width * 0.2)*2)), (height - ((int)(height * 0.2))*2));
@@ -97,6 +99,10 @@ public class MenuPanel extends JPanel implements ActionListener{
 		playBtn.addActionListener(this);
 		panel.add(playBtn);
 		
+		leaderboardBtn = new JButton("Leaderboard");
+		leaderboardBtn.addActionListener(this);
+		panel.add(leaderboardBtn);
+		
 		settingsBtn = new JButton("Settings");
 		settingsBtn.addActionListener(this);
 		panel.add(settingsBtn);
@@ -108,9 +114,6 @@ public class MenuPanel extends JPanel implements ActionListener{
 		Container container = this.getParent();
 		panelSingleton.currentPanel("menuPnl");
 		
-		System.out.println("TEST 1: "+ cardLayout.toString());
-		System.out.println("TEST 2: "+ panelSingleton.previousPanel());
-		
 		if(e.getSource() == playBtn) {
 			gamePnl = new GamePanel(cardLayout);
 			container.add(gamePnl, "gamePnl");
@@ -120,6 +123,10 @@ public class MenuPanel extends JPanel implements ActionListener{
 		}else if(e.getSource() == settingsBtn) {
 			cardLayout.show(container, "settingsPnl");
 			SwingUtilities.updateComponentTreeUI(this);
+		}else if(e.getSource() == leaderboardBtn) {
+			leaderboardPnl = new LeaderboardPanel(cardLayout);
+			container.add(leaderboardPnl, "leaderboardPnl");
+			cardLayout.show(container, "leaderboardPnl");
 		}
 		
 		

@@ -20,6 +20,8 @@ import javax.swing.SwingUtilities;
  * The 'GameFrame' class generates the frame that will house all the panels.
  */
 public class GameFrame extends JFrame{
+	private PanelSingleton panelSingleton;
+	
 	CardLayout cardLayout;		// manager for panels
 	JPanel container;			// panel used to store all other panels
 	
@@ -31,8 +33,8 @@ public class GameFrame extends JFrame{
 	
 	//Game game;					// instance of chess game
 	//GamePanel gamePnl;
-	MenuPanel menuPnl;				// instance of menu panel
-	SettingsPanel settingsPnl;		// instance of settings panel
+	MenuPanel menuPnl;					// instance of menu panel
+	SettingsPanel settingsPnl;			// instance of settings panel
 	
 	
 	/**
@@ -47,6 +49,11 @@ public class GameFrame extends JFrame{
 		this.setLayout(new BorderLayout()); 	 
 	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    
+	    // saves the size of the frame in panel singleton
+		panelSingleton = PanelSingleton.getInstance();
+	    panelSingleton.setHeight(this.getHeight());
+	    panelSingleton.setWidth(this.getWidth());
+		
 	    // Sets up CardLayout manager and accompanying container
 	    cardLayout = new CardLayout();
 	    container = new JPanel(cardLayout);
@@ -56,13 +63,12 @@ public class GameFrame extends JFrame{
 	    //game = new Game();
 	    //gamePnl = new GamePanel(cardLayout);
 	    settingsPnl = new SettingsPanel(cardLayout);
-	   
 	    
 	    // Adds the panels into the container
 	    container.add(menuPnl, "menuPnl");
 	    //container.add(gamePnl, "gamePnl");
 	    container.add(settingsPnl, "settingsPnl");
-	    
+	  
 	    // When game is ran, Menu panel will be first panel show on screen
 	    cardLayout.show(container, "menuPnl");
 	    
