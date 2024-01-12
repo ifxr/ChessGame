@@ -16,16 +16,15 @@ public class LeaderboardPanel extends JPanel implements ActionListener {
 	private PanelSingleton panelSingleton;			// Used to attain frame size components and access previous accessed panel
 	CardLayout cardLayout;							// Used to traverse to the different panels in the container
 	
-	JPanel topPnl;									// Used to display actual leaderboard
 	JPanel bottomPnl;								// Used to layout the necessary buttons
 	
 	JButton backBtn;								// Used to go back to main menu
+	Leaderboard leaderboard;
 	
 	LeaderboardPanel(CardLayout cardLayout){
 		this.cardLayout = cardLayout;						
 		panelSingleton = PanelSingleton.getInstance();	
-		
-		topPnl = new JPanel();			
+				
 		bottomPnl = new JPanel();
 		
 		// Necessary to set the bottom panel bounds
@@ -37,9 +36,12 @@ public class LeaderboardPanel extends JPanel implements ActionListener {
 		// Sets up back button
 		backBtnSetup();
 		
+		// Creates a new leaderboard instance
+		leaderboard = new Leaderboard();
+		
 		// Applies layout and applies necessary components
 		bottomPnl.setLayout(new BorderLayout());
-		bottomPnl.add(topPnl, BorderLayout.CENTER);
+		bottomPnl.add(leaderboard, BorderLayout.CENTER);
 		bottomPnl.add(backBtn, BorderLayout.SOUTH);
 		
 		// Setup for main leaderboardPanel
@@ -62,6 +64,9 @@ public class LeaderboardPanel extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		String panelStr = panelSingleton.previousPanel();
 		if(e.getSource() == backBtn) {
+			this.remove(leaderboard);
+			leaderboard = new Leaderboard();
+			
 			Container container = this.getParent();
 			cardLayout.show(container, panelStr);
 		}

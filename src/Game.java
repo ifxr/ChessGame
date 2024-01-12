@@ -130,8 +130,11 @@ public class Game extends JPanel{
 		}
 		if (timer != null) {
 	    	  timer.cancel();
+	    	  new Leaderboard(currentTeamLabel.getText(), timerLbl.getText().toString(), eatenByBlackStr.toString());
 	    	  timer = null;
 	    }
+		
+		
 	}
 	
 	/**
