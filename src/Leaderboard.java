@@ -25,16 +25,16 @@ public class Leaderboard extends JPanel{
 	JScrollPane scrollPane;
 	static int count = 0;
 	
-	int size = 5;
+	static int recordSize = 31;
 	String fileName = "leaderboard.json";
 	
 	Leaderboard(){
 		panel = new JPanel();
-		
-		//panel.setBounds(0, 0, this.getWidth(), this.getHeight());
 		panel.setLayout(new BorderLayout());
+		
 		this.setLayout(new BorderLayout());
 		this.add(panel, BorderLayout.CENTER);
+		
 		readLeaderboard();
 		SwingUtilities.updateComponentTreeUI(this);
 	}
@@ -53,8 +53,6 @@ public class Leaderboard extends JPanel{
 		
 		try{
 			File file = new File(fileName);
-			
-			 System.out.println("File length: "+ file.length());
 			
 			file.createNewFile();
 			
@@ -96,8 +94,6 @@ public class Leaderboard extends JPanel{
 		data[count][2] = eaten;
 		
 		count++;
-		
-		System.out.println("Team: "+ team+"Time: "+ time+"Eaten: "+ eaten);
 	}
 	
 	public void writeLeaderboard() {
@@ -113,19 +109,15 @@ public class Leaderboard extends JPanel{
 			// If file exists, contents is parsed and saved to be appended on.
 			// If file does not exist, file is created
 			if (file.createNewFile()) {
-		        System.out.println("File created: " + file.getName());
 		        jsonArr = new JSONArray();
 		    } else {
-		        System.out.println("File already exists.");
-		        
 		        FileReader reader = new FileReader(fileName);
 				Object obj = jParse.parse(reader);
 				jsonArr = (JSONArray) obj;
-				System.out.println(jsonArr);
 		    }
 			
 			// Limits the size of file to 'n' entries
-			while(jsonArr.size() >= size) {
+			while(jsonArr.size() >= recordSize) {
 				jsonArr.remove(0);
 			}
 			
@@ -141,8 +133,6 @@ public class Leaderboard extends JPanel{
 			
 			// Add it to the jsonArray
 			jsonArr.add(player);
-			
-			System.out.println(jsonArr);
 			
 			// Write the JSONArray into the file
 			FileWriter writer = new FileWriter(fileName);

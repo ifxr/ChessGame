@@ -45,6 +45,7 @@ public class Game extends JPanel{
 	static StringBuilder eatenByWhiteStr = new StringBuilder("");
 	static StringBuilder eatenByBlackStr = new StringBuilder("");
 	
+	static Boolean boolResign = false;
 	static int count;
 	static int[] pieceCoords = {-1,-1};
 	static int[] nextMove = {-1, -1};
@@ -130,11 +131,34 @@ public class Game extends JPanel{
 		}
 		if (timer != null) {
 	    	  timer.cancel();
-	    	  new Leaderboard(currentTeamLabel.getText(), timerLbl.getText().toString(), eatenByBlackStr.toString());
+	    	  leaderboardUpdate();
 	    	  timer = null;
 	    }
 		
 		
+	}
+	
+	public static void leaderboardUpdate() {
+		String winnerStr;
+		String timeStr;
+		String eatenStr;
+		
+		winnerStr = currentTeamLabel.getText().replace("WINNER: ", "").replace("Team: ", "");
+		if(boolResign == true) {
+			if (winnerStr.equals("WHITE"))
+				winnerStr = "BLACK";
+			else if (winnerStr.equals("BLACK"))
+				winnerStr = "WHITE";
+		}
+		timeStr = timerLbl.getText().toString();
+		if(winnerStr.equals("WHITE"))
+			eatenStr = eatenByWhiteStr.toString().replace("Eaten: ", "");
+		else
+			eatenStr = eatenByBlackStr.toString().replace("Eaten: ", "");
+		
+		new Leaderboard(winnerStr, timeStr, eatenStr);
+		
+		boolResign = false;
 	}
 	
 	/**
@@ -387,7 +411,7 @@ public class Game extends JPanel{
 		
 		// Triggers pawn promotion condition
 		if(chessboard[possibleRow][possibleCol].getPiece().equals("[P]")) {
-			if (possibleRow == 0 || possibleRow == 7) {
+			if ((possibleRow == 0 || possibleRow == 7) && errorCode != 1) {
 				pawnPromotion(possibleRow, possibleCol);
 			}
 		}
@@ -438,6 +462,7 @@ public class Game extends JPanel{
         	chessboard[currentRow][currentCol].setPiece("[N]");
         } 
         audioMove = "promote";
+        loadImages();
 	}
 	
 	/*
@@ -544,16 +569,16 @@ public class Game extends JPanel{
 		int steps = 1;
 		
 		// Checks to see that that pawn is 
-		if(gameRow == 6 && !currentTeam.equals(teamWhite))
+		if(gameRow == 6 && currentTeam.equals(teamWhite))
 			steps = 2;
-		else if(gameRow == 1 && currentTeam.equals(teamWhite))
+		else if(gameRow == 1 && !currentTeam.equals(teamWhite))
 			steps = 2;
 		
 		// Marks potential slots for pawns to move
 		for(int i = 1; i <= steps; i++) {
 			int temp = i;
 			
-			if (!currentTeam.equals(teamWhite))
+			if (currentTeam.equals(teamWhite))
 				temp = -i;
 			if(chessboard[gameRow + temp][gameCol].getPiece().equals(emptySlot)) {
 				chessboard[gameRow + temp][gameCol].setPiece(possibleMove);
@@ -568,7 +593,7 @@ public class Game extends JPanel{
 		for(int i = -1; i <= 2; i=i+2) {
 			int temp = i;
 			//Checks got 
-			if(currentTeam.equals(teamWhite)) {
+			if(!currentTeam.equals(teamWhite)) {
 				// Checks right Diagonal
 				if(temp == 1) {
 					if (gameRow + temp > chessboard.length - 1 || gameCol + temp > chessboard.length -1)
@@ -797,20 +822,20 @@ public class Game extends JPanel{
 		// Populates chess board with all playable pieces
 		for(int i = 0; i < chessboard.length; i++) {
 			// Populate king row and assign proper team: "WHITE"
-			chessboard[0][i].setPiece(kingRow[i]);
-			chessboard[0][i].setTeam(teamWhite);
+			chessboard[chessboard.length-1][i].setPiece(kingRow[i]);
+			chessboard[chessboard.length-1][i].setTeam(teamWhite);
 			
 			// Populate pawn row and assign proper team: "WHITE"
-			chessboard[1][i].setPiece(pawnRow[i]);
-			chessboard[1][i].setTeam(teamWhite);
+			chessboard[chessboard.length-2][i].setPiece(pawnRow[i]);
+			chessboard[chessboard.length-2][i].setTeam(teamWhite);
 			
 			// Populate king row and assign proper team: "BLACK"
-			chessboard[chessboard.length-1][i].setPiece(kingRow[i]);
-			chessboard[chessboard.length-1][i].setTeam(teamBlack);
+			chessboard[0][i].setPiece(kingRow[i]);
+			chessboard[0][i].setTeam(teamBlack);
 			
 			// Populate pawn row and assign proper team: "BLACK"
-			chessboard[chessboard.length-2][i].setPiece(pawnRow[i]);
-			chessboard[chessboard.length-2][i].setTeam(teamBlack);
+			chessboard[1][i].setPiece(pawnRow[i]);
+			chessboard[1][i].setTeam(teamBlack);
 		}
 		loadImages();
 		return 0;
@@ -829,11 +854,6 @@ public class Game extends JPanel{
 	 * 
 	 */
 	public static void loadImages() {
-		String[][] images = {{"images/Pawn_Wht.png", "images/Knight_Wht.png", "images/Rook_Wht.png", 
-								"images/Bishop_Wht.png", "images/Queen_Wht.png", "images/King_Wht.png"},
-							{"images/Pawn_Blk.png", "images/Knight_Blk.png", "images/Rook_Blk.png", 
-								"images/Bishop_Blk.png", "images/Queen_Blk.png", "images/King_Blk.png"},
-							{"images/Blank.png"}};
 		String teamWhite = "WHITE";
 		
 		for(int i = 0; i < chessboard.length; i++) {
@@ -841,46 +861,46 @@ public class Game extends JPanel{
 				
 				if(chessboard[i][j].getPiece().contains("P")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
-						chessboard[i][j].setImage(new ImageIcon(images[0][0]));
+						chessboard[i][j].setImage(new ImageIcon(ClassLoader.getSystemResource("Pawn_Wht.png")));
 					else
-						chessboard[i][j].setImage(new ImageIcon(images[1][0]));
+						chessboard[i][j].setImage(new ImageIcon(ClassLoader.getSystemResource("Pawn_Blk.png")));
 				}
 				else if(chessboard[i][j].getPiece().contains("N")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
-						chessboard[i][j].setImage(new ImageIcon(images[0][1]));
+						chessboard[i][j].setImage(new ImageIcon(ClassLoader.getSystemResource("Knight_Wht.png")));
 					else
-						chessboard[i][j].setImage(new ImageIcon(images[1][1]));
+						chessboard[i][j].setImage(new ImageIcon(ClassLoader.getSystemResource("Knight_Blk.png")));
 				}
 				else if(chessboard[i][j].getPiece().contains("R")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
-						chessboard[i][j].setImage(new ImageIcon(images[0][2]));
+						chessboard[i][j].setImage(new ImageIcon(ClassLoader.getSystemResource("Rook_Wht.png")));
 					else
-						chessboard[i][j].setImage(new ImageIcon(images[1][2]));
+						chessboard[i][j].setImage(new ImageIcon(ClassLoader.getSystemResource("Rook_Blk.png")));
 				}
 				else if(chessboard[i][j].getPiece().contains("B")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
-						chessboard[i][j].setImage(new ImageIcon(images[0][3]));
+						chessboard[i][j].setImage(new ImageIcon(ClassLoader.getSystemResource("Bishop_Wht.png")));
 					else
-						chessboard[i][j].setImage(new ImageIcon(images[1][3]));
+						chessboard[i][j].setImage(new ImageIcon(ClassLoader.getSystemResource("Bishop_Blk.png")));
 				}
 				else if(chessboard[i][j].getPiece().contains("Q")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
-						chessboard[i][j].setImage(new ImageIcon(images[0][4]));
+						chessboard[i][j].setImage(new ImageIcon(ClassLoader.getSystemResource("Queen_Wht.png")));
 					else
-						chessboard[i][j].setImage(new ImageIcon(images[1][4]));
+						chessboard[i][j].setImage(new ImageIcon(ClassLoader.getSystemResource("Queen_Blk.png")));
 				}
 				else if(chessboard[i][j].getPiece().contains("K")) {
 					if (chessboard[i][j].getTeam().equals(teamWhite))
-						chessboard[i][j].setImage(new ImageIcon(images[0][5]));
+						chessboard[i][j].setImage(new ImageIcon(ClassLoader.getSystemResource("King_Wht.png")));
 					else
-						chessboard[i][j].setImage(new ImageIcon(images[1][5]));
+						chessboard[i][j].setImage(new ImageIcon(ClassLoader.getSystemResource("King_Blk.png")));
 				}
 				else {
-					chessboard[i][j].setImage(new ImageIcon(images[2][0]));
-					blankImage = resizeIcon(chessboard[i][j].getImage(), 50, 50);
+					chessboard[i][j].setImage(new ImageIcon(ClassLoader.getSystemResource("Blank.png")));
+					blankImage = resizeIcon(chessboard[i][j].getImage(), 60, 60);
 				}
 				
-				chessboard[i][j].setImage(resizeIcon(chessboard[i][j].getImage(), 50, 50));
+				chessboard[i][j].setImage(resizeIcon(chessboard[i][j].getImage(), 60, 60));
 			}
 		}
 	}
@@ -891,6 +911,7 @@ public class Game extends JPanel{
 	public static void updateBoard(String teamSelected) {
 		//Color colorOne = settings.getColorOne();
 		//System.out.println("Game Color: "+ colorOne);
+		int len = chessboard.length -1;
 		
 		try {
 			audioPlayer = new AudioPlayer(audioMove);

@@ -123,7 +123,9 @@ public class GamePanel extends JPanel implements ActionListener{
 			SwingUtilities.updateComponentTreeUI(this);
 		}
 		else if(e.getSource() == resignBtn) {
+			Game.boolResign = true;
 			Game.enableGame(false);
+			
 		}
 	}
 }
