@@ -26,11 +26,10 @@ public class SettingsPanel extends JPanel implements ActionListener {
 	static Color colorTwo;
 	
 	CardLayout cardLayout;
-
-	
 	
 	SettingsPanel(CardLayout cardLayout){ 
 		this.cardLayout = cardLayout;
+		
 		colorSingleton = ColorSingleton.getInstance();
 		panelSingleton = PanelSingleton.getInstance();
 		
@@ -74,9 +73,6 @@ public class SettingsPanel extends JPanel implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		String panelStr = panelSingleton.previousPanel();
-		
-		System.out.println("TEST 1: "+ cardLayout.toString());
-		System.out.println("TEST 2: "+ panelSingleton.previousPanel());
 		if (e.getSource() == colorOneBtn) {
 			colorOne = JColorChooser.showDialog(this, "Choose a color", null);
 			colorSingleton.setSelectedColorOne(colorOne);
@@ -86,8 +82,10 @@ public class SettingsPanel extends JPanel implements ActionListener {
 			colorSingleton.setSelectedColorTwo(colorTwo);
 			
 		}else if(e.getSource() == backBtn) {
+			Game.updateBoard("");
 			Container container = this.getParent();
 			cardLayout.show(container, panelStr);
+			
 		}
     }
 }
