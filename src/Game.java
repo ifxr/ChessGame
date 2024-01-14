@@ -215,7 +215,7 @@ public class Game extends JPanel{
         for (int x = 0; x < buttons.length; x++) {
             for (int y = 0; y < buttons[0].length; y++) {
                 if (c.equals(buttons[x][y])) {
-                	System.out.println("Coords- x: "+x+" y: "+y);
+                	//System.out.println("Coords- x: "+x+" y: "+y);
                     coords[0] = x;
                     coords[1] = y;
                     return coords;
@@ -945,7 +945,9 @@ public class Game extends JPanel{
 			panelColorCounter++;
 			// Updates the text on each button
 			for (int j = 0; j < chessboard[0].length; j++) {
-				System.out.print(chessboard[i][j].getPiece());
+				// Chessboard on console for error checking
+				//System.out.print(chessboard[i][j].getPiece());
+				
 				ImageIcon icon = chessboard[i][j].getImage();
 				buttonLabels[i][j].setIcon(icon);
 				

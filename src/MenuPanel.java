@@ -49,7 +49,7 @@ public class MenuPanel extends JPanel implements ActionListener{
 		
 		int width = frame.getWidth();
 		int height = frame.getHeight();
-		System.out.println("Height: "+ height+" width: "+width);
+		
 		panel.setBounds((int)(width * 0.2), (int)(height * 0.2)-20, 
     			(width - ((int)(width * 0.2)*2)), (height - ((int)(height * 0.2))*2));
 		
