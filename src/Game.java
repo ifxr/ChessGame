@@ -75,16 +75,46 @@ public class Game extends JPanel{
 	    scoreboardPanel.add(timerLbl, BorderLayout.CENTER);
 	    timerLbl.setHorizontalAlignment(JLabel.CENTER);
 	    
+	    // -------------
 	    
+	    JPanel mainPnl = new JPanel();
+	    JPanel westPnl = new JPanel();
+		JPanel eastPnl = new JPanel();
+		
+		westPnl.setBackground(Color.blue);
+		eastPnl.setBackground(Color.green);
+	    
+		mainPnl.setLayout(new BorderLayout());
+	    mainPnl.add(gamePanel, BorderLayout.CENTER);
+		mainPnl.add(scoreboardPanel, BorderLayout.SOUTH);
+		
+		this.setLayout(new GridBagLayout());
+		this.add(mainPnl, fillPanel(1, 0, 1, 1));
+		this.add(westPnl, fillPanel(0, 0, 0.1, 1)); 
+		this.add(eastPnl, fillPanel(2, 0, 0.1, 1));
+		
+		
+	    /*
 	    this.setLayout(new BorderLayout());
 		this.add(gamePanel, BorderLayout.CENTER);
 		this.add(scoreboardPanel, BorderLayout.SOUTH);
+		*/
 		
 		String startingTeam = "WHITE";
 
 		generateBoard(startingTeam); 
 		updateBoard(startingTeam);	    
 	 }
+	
+	public static Object fillPanel(int gX, int gY, double wX, double wY) {
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.gridx = gX;
+		constraints.gridy = gY;
+		constraints.weightx = wX;
+		constraints.weighty = wY;
+		constraints.fill = GridBagConstraints.BOTH;
+		return constraints;
+	}
 	
 	/**
 	 * 
